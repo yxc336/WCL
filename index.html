@@ -5,27 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>西冠城手札</title>
 
-  <!-- FreeImage.host 图床插件 SDK -->
-  <script async src="https://freeimage.host/sdk/pup.js" data-url="https://freeimage.host/upload" data-auto-insert="direct-links"></script>
-
-  <!-- 古典衬线字体（离线时自动回退至系统宋体/衬线字体） -->
+  <!-- 仅保留轻量拉丁古典衬线体；中文直接调用系统原生宋体/衬线体，杜绝分片字体网络重排卡顿 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --bg-obsidian: #2a1e15;
-      --bg-marble: #181014;
+      --bg-obsidian: #221712;
+      --bg-marble: #140d0f;
       --crimson-deep: #5e1116;
       --crimson-royal: #7f171d;
       --crimson-alert: #a81c24;
       --gold-antique: #b58d46;
       --gold-bright: #d8b572;
       --gold-dim: #735728;
-      --parchment-light: #f3e8d2;
-      --parchment-mid: #e6d4b3;
-      --parchment-dark: #ceb68d;
+      --parchment-light: #f5ebd6;
+      --parchment-mid: #e6d3b0;
+      --parchment-dark: #cbb286;
       --ink-black: #211714;
       --ink-sepia: #4a352b;
       --ink-muted: #6e5546;
@@ -33,47 +30,58 @@
       --scroll-offset: 175px;
       --sidebar-top: 170px;
 
-      --font-display: "Cinzel", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
-      --font-body: "Cormorant Garamond", "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+      --font-display: "Cinzel", "Songti SC", "STSong", "SimSun", Georgia, serif;
+      --font-body: "Cormorant Garamond", "Songti SC", "STSong", "SimSun", Georgia, serif;
+
+      --corner-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none'%3E%3Cpath d='M2 26V6C2 3.8 3.8 2 6 2H26' stroke='%237f171d' stroke-width='1.6'/%3E%3Cpath d='M6 20V8C6 6.9 6.9 6 8 6H20' stroke='%23b58d46' stroke-width='1.2'/%3E%3Ccircle cx='6' cy='6' r='2.2' fill='%23b58d46'/%3E%3C/svg%3E");
+      --corner-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none'%3E%3Cg transform='translate(28,0) scale(-1,1)'%3E%3Cpath d='M2 26V6C2 3.8 3.8 2 6 2H26' stroke='%237f171d' stroke-width='1.6'/%3E%3Cpath d='M6 20V8C6 6.9 6.9 6 8 6H20' stroke='%23b58d46' stroke-width='1.2'/%3E%3Ccircle cx='6' cy='6' r='2.2' fill='%23b58d46'/%3E%3C/g%3E%3C/svg%3E");
+      --corner-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none'%3E%3Cg transform='translate(0,28) scale(1,-1)'%3E%3Cpath d='M2 26V6C2 3.8 3.8 2 6 2H26' stroke='%237f171d' stroke-width='1.6'/%3E%3Cpath d='M6 20V8C6 6.9 6.9 6 8 6H20' stroke='%23b58d46' stroke-width='1.2'/%3E%3Ccircle cx='6' cy='6' r='2.2' fill='%23b58d46'/%3E%3C/g%3E%3C/svg%3E");
+      --corner-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none'%3E%3Cg transform='translate(28,28) scale(-1,-1)'%3E%3Cpath d='M2 26V6C2 3.8 3.8 2 6 2H26' stroke='%237f171d' stroke-width='1.6'/%3E%3Cpath d='M6 20V8C6 6.9 6.9 6 8 6H20' stroke='%23b58d46' stroke-width='1.2'/%3E%3Ccircle cx='6' cy='6' r='2.2' fill='%23b58d46'/%3E%3C/g%3E%3C/svg%3E");
     }
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    ::selection {
+      background: var(--crimson-royal);
+      color: var(--parchment-light);
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     body {
       min-height: 100vh;
+      margin: 0;
+      padding: 0 0 72px;
       background-color: var(--bg-obsidian);
       color: var(--parchment-light);
       font-family: var(--font-body);
       line-height: 1.6;
-      padding-bottom: 64px;
       position: relative;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* 纯 CSS 深色做旧羊皮纸背景层（无外链、GPU 单层缓存、极低性能开销） */
+    /* 纯 CSS 静态单层 GPU 缓存背景（移除易引发高分屏缩放重算的 1px 扫描线纹理） */
     .bg-wallpaper {
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
+      will-change: transform;
       transform: translateZ(0);
-      background-color: #523d2a;
+      background-color: #2b1e16;
       background-image:
-        radial-gradient(ellipse at 50% 35%, rgba(138, 108, 76, 0.42) 0%, rgba(72, 52, 34, 0.36) 56%, rgba(28, 19, 12, 0.84) 100%),
-        radial-gradient(circle at 18% 22%, rgba(162, 126, 86, 0.16) 0%, transparent 42%),
-        radial-gradient(circle at 82% 78%, rgba(36, 22, 14, 0.34) 0%, transparent 45%),
-        repeating-linear-gradient(
-          0deg,
-          rgba(28, 18, 10, 0.035) 0px,
-          rgba(28, 18, 10, 0.035) 1px,
-          transparent 1px,
-          transparent 5px
-        ),
-        linear-gradient(160deg, #6b5239 0%, #4f3b28 52%, #362619 100%);
+        radial-gradient(ellipse at 50% 18%, rgba(127, 23, 29, 0.24) 0%, transparent 56%),
+        radial-gradient(ellipse at 50% 42%, rgba(122, 92, 62, 0.34) 0%, rgba(56, 39, 27, 0.42) 56%, rgba(16, 10, 10, 0.92) 100%),
+        linear-gradient(160deg, #4b3828 0%, #34251a 52%, #1d130e 100%);
     }
 
     /* 双模式权限控制 */
@@ -94,40 +102,68 @@
     .hero-header {
       width: 100%;
       text-align: center;
-      padding: 32px 20px 26px;
+      padding: 34px 20px 28px;
       margin: 0;
       background:
-        radial-gradient(ellipse at 50% 50%, rgba(72, 16, 22, 0.45) 0%, rgba(24, 12, 14, 0.92) 100%),
-        linear-gradient(180deg, rgba(34, 15, 18, 0.92) 0%, rgba(20, 11, 13, 0.96) 100%);
-      border-top: 1px solid var(--gold-dim);
+        radial-gradient(ellipse at 50% 35%, rgba(112, 20, 26, 0.46) 0%, rgba(22, 11, 13, 0.94) 72%),
+        linear-gradient(180deg, rgba(32, 14, 17, 0.94) 0%, rgba(17, 9, 11, 0.98) 100%);
+      border-top: 1px solid rgba(181, 141, 70, 0.55);
       border-bottom: 1px solid var(--gold-dim);
       box-shadow: inset 0 -1px 0 var(--crimson-deep);
       position: relative;
+      overflow: hidden;
+    }
+
+    .hero-header::after {
+      content: "";
+      position: absolute;
+      inset: 6px 14px;
+      border: 1px solid rgba(181, 141, 70, 0.16);
+      pointer-events: none;
     }
 
     .hero-crest {
-      width: 62px;
-      height: 40px;
-      margin: 0 auto 8px;
+      width: 68px;
+      height: 44px;
+      margin: 0 auto 10px;
       display: block;
-      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
     }
 
     .hero-title {
       font-family: var(--font-display);
-      font-size: clamp(1.85rem, 3.4vw, 2.65rem);
+      font-size: clamp(1.95rem, 3.6vw, 2.8rem);
       font-weight: 800;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.18em;
       color: var(--parchment-light);
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 18px rgba(94, 17, 22, 0.45);
-      margin-bottom: 6px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+      margin: 0 0 8px;
+    }
+
+    .hero-ornament-rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      max-width: 320px;
+      margin: 0 auto 8px;
+      color: var(--gold-antique);
+      font-size: 0.72rem;
+    }
+
+    .hero-ornament-rule::before,
+    .hero-ornament-rule::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(216, 181, 114, 0.7), transparent);
     }
 
     .hero-subtitle {
-      font-size: 0.98rem;
-      color: #d6c3aa;
+      font-size: 1rem;
+      color: #dfd0b8;
       font-style: italic;
-      max-width: 760px;
+      letter-spacing: 0.04em;
+      max-width: 780px;
       margin: 0 auto;
     }
 
@@ -137,12 +173,12 @@
       top: 0;
       z-index: 40;
       width: 100%;
-      background: rgba(20, 12, 14, 0.95);
+      background: #140b0d;
       border-top: 2px solid var(--crimson-royal);
-      border-bottom: 1px solid var(--gold-dim);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
-      padding: 12px 22px;
-      margin-bottom: 22px;
+      border-bottom: 1px solid rgba(181, 141, 70, 0.55);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65);
+      padding: 12px 24px;
+      margin-bottom: 24px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -153,35 +189,41 @@
     .status-bar {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      background: rgba(12, 7, 9, 0.85);
-      border: 1px solid rgba(181, 141, 70, 0.3);
+      gap: 9px;
+      padding: 6px 13px;
+      background: rgba(11, 6, 8, 0.88);
+      border: 1px solid rgba(181, 141, 70, 0.28);
       border-left: 3px solid var(--gold-antique);
+      border-radius: 2px;
       font-size: 0.88rem;
-      color: #d6c3a8;
+      color: #dac8ad;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       transition: border-color 0.2s, color 0.2s, background-color 0.2s;
     }
 
+    .status-glyph {
+      color: var(--gold-bright);
+      flex-shrink: 0;
+    }
+
     .status-bar.status-success {
       border-left-color: #499b6a;
-      color: #b9e6c9;
-      background: rgba(20, 42, 28, 0.65);
+      color: #c2ebd0;
+      background: rgba(18, 42, 27, 0.72);
     }
 
     .status-bar.status-warn {
       border-left-color: #d89b3c;
-      color: #f6d79c;
-      background: rgba(54, 34, 12, 0.7);
+      color: #f7dba3;
+      background: rgba(54, 34, 12, 0.76);
     }
 
     .status-bar.status-error {
       border-left-color: #c9323a;
-      color: #f7b7ba;
-      background: rgba(66, 14, 18, 0.75);
+      color: #fac0c3;
+      background: rgba(66, 14, 18, 0.8);
     }
 
     .toolbar-actions {
@@ -195,10 +237,10 @@
     .toolbar-search-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       justify-content: space-between;
-      padding-top: 8px;
+      padding-top: 9px;
       border-top: 1px solid rgba(181, 141, 70, 0.2);
     }
 
@@ -212,21 +254,27 @@
 
     .search-icon {
       position: absolute;
-      left: 11px;
+      left: 12px;
       color: var(--gold-antique);
       pointer-events: none;
-      font-size: 0.9rem;
+      font-size: 0.94rem;
     }
 
     .search-box input {
       width: 100%;
-      padding: 7px 34px 7px 32px;
-      background: #10090b;
+      padding: 8px 36px 8px 34px;
+      background: #0c0709;
       border: 1px solid rgba(115, 87, 40, 0.65);
+      border-radius: 2px;
       color: var(--parchment-light);
       font-family: var(--font-body);
-      font-size: 0.95rem;
+      font-size: 0.96rem;
       outline: none;
+      transition: border-color 0.16s;
+    }
+
+    .search-box input::placeholder {
+      color: rgba(196, 175, 148, 0.55);
     }
 
     .search-box input:focus {
@@ -241,7 +289,7 @@
       color: #a68f76;
       cursor: pointer;
       font-size: 0.9rem;
-      padding: 2px 5px;
+      padding: 2px 6px;
       display: none;
     }
 
@@ -254,10 +302,15 @@
     }
 
     .count-badge {
-      font-size: 0.85rem;
-      color: var(--gold-antique);
-      letter-spacing: 0.05em;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      color: var(--gold-bright);
+      letter-spacing: 0.06em;
       white-space: nowrap;
+      padding: 4px 10px;
+      background: rgba(127, 23, 29, 0.22);
+      border: 1px solid rgba(181, 141, 70, 0.35);
+      border-radius: 2px;
     }
 
     .btn-group {
@@ -269,23 +322,24 @@
 
     .btn {
       font-family: var(--font-display);
-      font-size: 0.82rem;
+      font-size: 0.81rem;
       font-weight: 700;
       letter-spacing: 0.06em;
-      padding: 8px 13px;
-      border: 1px solid var(--gold-dim);
+      padding: 8px 14px;
+      border: 1px solid rgba(181, 141, 70, 0.52);
+      border-radius: 2px;
       cursor: pointer;
-      transition: border-color 0.15s, background-color 0.15s;
+      transition: border-color 0.14s, background-color 0.14s;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(180deg, #271b1e 0%, #160f11 100%);
+      background: linear-gradient(180deg, #2b1d20 0%, #170f11 100%);
       color: var(--gold-bright);
     }
 
     .btn:hover:not(:disabled) {
       border-color: var(--gold-bright);
-      background: linear-gradient(180deg, #352328 0%, #1f1417 100%);
+      background: linear-gradient(180deg, #3c272c 0%, #221518 100%);
     }
 
     .btn:disabled {
@@ -294,68 +348,71 @@
     }
 
     .btn-crimson {
-      background: linear-gradient(180deg, var(--crimson-royal) 0%, #4a0c10 100%);
+      background: linear-gradient(180deg, #8b1a21 0%, #4b0c10 100%);
       color: var(--parchment-light);
       border-color: var(--gold-antique);
     }
 
     .btn-crimson:hover:not(:disabled) {
-      background: linear-gradient(180deg, #981d25 0%, var(--crimson-deep) 100%);
+      background: linear-gradient(180deg, #a42028 0%, var(--crimson-deep) 100%);
       border-color: var(--gold-bright);
     }
 
     .btn-mode-active {
-      background: linear-gradient(180deg, #4f1d3e 0%, #2a0f21 100%);
+      background: linear-gradient(180deg, #561f43 0%, #2d0f23 100%);
       border-color: #d69ce0;
       color: #f7e4fa;
     }
 
     .btn-reorder-active {
-      background: linear-gradient(180deg, #75501a 0%, #452e0d 100%) !important;
+      background: linear-gradient(180deg, #80571b 0%, #4a310e 100%) !important;
       border-color: #ffd479 !important;
       color: #fff6de !important;
     }
 
     .btn-save-unsaved {
-      background: linear-gradient(180deg, #b8252e 0%, #6e1016 100%) !important;
+      background: linear-gradient(180deg, #bd262f 0%, #701016 100%) !important;
       border-color: #ffd479 !important;
       color: #fff6e0 !important;
-      box-shadow: 0 0 12px rgba(201, 44, 54, 0.65);
+      box-shadow: 0 0 10px rgba(201, 44, 54, 0.65);
     }
 
     /* ================= 三、主工作区：左侧人物名录竖排 + 右侧羊皮纸卡片网格 ================= */
     .workspace-layout {
       display: flex;
       align-items: flex-start;
-      gap: 22px;
-      padding: 0 22px;
+      gap: 24px;
+      padding: 0 24px;
       width: 100%;
+      max-width: 1920px;
+      margin: 0 auto;
     }
 
     /* 左侧竖排姓名快速跳转栏 */
     .npc-sidebar {
-      width: 232px;
+      width: 240px;
       flex-shrink: 0;
       position: sticky;
       top: var(--sidebar-top);
       max-height: calc(100vh - var(--sidebar-top) - 18px);
       display: flex;
       flex-direction: column;
-      background: rgba(22, 13, 15, 0.93);
+      background: #170e10;
       border: 1px solid var(--gold-dim);
-      outline: 1px solid var(--crimson-deep);
-      outline-offset: -5px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 0 0 1px rgba(127, 23, 29, 0.55), 0 8px 18px rgba(0, 0, 0, 0.5);
+      border-radius: 2px;
+      transform: translateZ(0);
     }
 
     .sidebar-header {
-      padding: 12px 14px 10px;
-      border-bottom: 1px solid rgba(181, 141, 70, 0.28);
+      padding: 13px 15px 11px;
+      border-bottom: 1px solid rgba(181, 141, 70, 0.3);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
       flex-shrink: 0;
+      background: rgba(94, 17, 22, 0.22);
     }
 
     .sidebar-title {
@@ -368,12 +425,16 @@
 
     .sidebar-total {
       font-size: 0.78rem;
-      color: #b59f84;
+      color: #ccb79b;
+      padding: 1px 7px;
+      border: 1px solid rgba(181, 141, 70, 0.3);
+      background: #0f090a;
+      border-radius: 999px;
     }
 
     .sidebar-list {
       overflow-y: auto;
-      padding: 6px 8px 10px;
+      padding: 8px 8px 12px;
       display: flex;
       flex-direction: column;
       gap: 3px;
@@ -398,32 +459,33 @@
       background: transparent;
       border: 1px solid transparent;
       border-left: 2px solid transparent;
-      color: #dccbb3;
+      border-radius: 2px;
+      color: #dfd0b9;
       font-family: var(--font-body);
-      font-size: 0.9rem;
-      padding: 5px 8px;
+      font-size: 0.92rem;
+      padding: 6px 9px;
       cursor: pointer;
       display: flex;
       align-items: baseline;
       gap: 7px;
-      transition: background-color 0.14s, border-color 0.14s, color 0.14s;
+      transition: background-color 0.12s, border-color 0.12s, color 0.12s;
     }
 
     .sidebar-item:hover {
-      background: rgba(127, 23, 29, 0.34);
+      background: rgba(127, 23, 29, 0.36);
       border-left-color: var(--gold-bright);
-      color: #fff6e5;
+      color: #fff7e8;
     }
 
     .sidebar-item.active-jump {
       background: rgba(127, 23, 29, 0.55);
       border-color: rgba(181, 141, 70, 0.45);
       border-left-color: var(--gold-bright);
-      color: #fff8ea;
+      color: #fff9ec;
     }
 
     .sidebar-item.dimmed {
-      opacity: 0.38;
+      opacity: 0.32;
     }
 
     .sidebar-num {
@@ -444,12 +506,12 @@
     .sidebar-empty {
       padding: 18px 10px;
       text-align: center;
-      font-size: 0.85rem;
-      color: #8f7b66;
+      font-size: 0.86rem;
+      color: #9e8974;
       font-style: italic;
     }
 
-    @media (max-width: 880px) {
+    @media (max-width: 900px) {
       .workspace-layout {
         flex-direction: column;
         padding: 0 14px;
@@ -458,22 +520,27 @@
       .npc-sidebar {
         width: 100%;
         position: static;
-        max-height: 210px;
+        max-height: 220px;
       }
       .sidebar-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
         gap: 4px;
       }
     }
 
-    /* 右侧卡片网格 */
-    .npc-grid {
+    /* 右侧主列容器 */
+    .grid-column {
       flex: 1;
       min-width: 0;
+      width: 100%;
+    }
+
+    /* 右侧卡片网格 */
+    .npc-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(385px, 1fr));
-      gap: 24px;
+      gap: 22px;
     }
 
     @media (max-width: 460px) {
@@ -482,22 +549,46 @@
       }
     }
 
+    /* 优化后的羊皮纸卡片：去除重度模糊阴影/outline-offset/content-visibility，四角雕花全部合入单层 CSS background */
     .npc-card {
       position: relative;
       scroll-margin-top: var(--scroll-offset);
-      content-visibility: auto;
-      contain-intrinsic-size: auto 380px;
-      contain: layout style paint;
-      background: linear-gradient(155deg, var(--parchment-light) 0%, var(--parchment-mid) 60%, var(--parchment-dark) 100%);
+      contain: layout style;
+      background-color: var(--parchment-mid);
+      background-image:
+        var(--corner-tl),
+        var(--corner-tr),
+        var(--corner-bl),
+        var(--corner-br),
+        linear-gradient(155deg, var(--parchment-light) 0%, var(--parchment-mid) 58%, var(--parchment-dark) 100%);
+      background-position:
+        5px 5px,
+        calc(100% - 5px) 5px,
+        5px calc(100% - 5px),
+        calc(100% - 5px) calc(100% - 5px),
+        0 0;
+      background-size:
+        22px 22px,
+        22px 22px,
+        22px 22px,
+        22px 22px,
+        100% 100%;
+      background-repeat: no-repeat;
       color: var(--ink-black);
-      padding: 20px 20px 18px;
+      padding: 22px 22px 19px;
       border: 2px solid var(--gold-dim);
-      outline: 1px solid rgba(127, 23, 29, 0.48);
-      outline-offset: -7px;
-      box-shadow: 0 6px 16px rgba(18, 10, 6, 0.48);
+      border-radius: 3px;
+      box-shadow:
+        inset 0 0 0 5px transparent,
+        inset 0 0 0 6px rgba(127, 23, 29, 0.3),
+        0 4px 12px rgba(10, 5, 4, 0.45);
       transition: transform 0.16s ease, border-color 0.16s ease;
       display: flex;
       flex-direction: column;
+    }
+
+    .npc-card.hidden-card {
+      display: none !important;
     }
 
     body:not(.reorder-mode) .npc-card:hover {
@@ -507,13 +598,13 @@
 
     /* 跳转高亮闪烁效果 */
     @keyframes jumpFlash {
-      0% { box-shadow: 0 0 0 4px var(--gold-bright), 0 0 28px rgba(216, 181, 114, 0.9); }
-      70% { box-shadow: 0 0 0 4px var(--gold-bright), 0 0 18px rgba(216, 181, 114, 0.5); }
-      100% { box-shadow: 0 6px 16px rgba(18, 10, 6, 0.48); }
+      0% { box-shadow: 0 0 0 3px var(--gold-bright), 0 0 22px rgba(216, 181, 114, 0.9); }
+      70% { box-shadow: 0 0 0 3px var(--gold-bright), 0 0 12px rgba(216, 181, 114, 0.45); }
+      100% { box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 6px rgba(127, 23, 29, 0.3), 0 4px 12px rgba(10, 5, 4, 0.45); }
     }
 
     .npc-card.jump-highlight {
-      animation: jumpFlash 1.5s ease-out;
+      animation: jumpFlash 1.4s ease-out;
       border-color: var(--gold-bright);
     }
 
@@ -577,11 +668,11 @@
 
     .btn-step {
       border: 1px solid rgba(115, 87, 40, 0.55);
-      background: rgba(255, 250, 238, 0.85);
+      background: rgba(255, 250, 238, 0.88);
       color: var(--ink-sepia);
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 2px 7px;
+      padding: 2px 8px;
       cursor: pointer;
     }
 
@@ -595,13 +686,13 @@
       cursor: not-allowed;
     }
 
-    /* 四角金属雕花装饰 */
+    /* 弹窗角落 SVG（仅存在 1 个隐藏弹窗中，不影响列表性能） */
     .corner-ornament {
       position: absolute;
       width: 24px;
       height: 24px;
       pointer-events: none;
-      opacity: 0.82;
+      opacity: 0.85;
       z-index: 2;
     }
     .corner-tl { top: 4px; left: 4px; }
@@ -617,7 +708,7 @@
       position: relative;
       z-index: 1;
       padding-bottom: 16px;
-      border-bottom: 1px solid rgba(110, 20, 24, 0.28);
+      border-bottom: 1px solid rgba(110, 20, 24, 0.25);
     }
 
     .portrait-wrap {
@@ -629,17 +720,40 @@
     }
 
     .portrait-frame {
-      width: 144px;
-      height: 183px;
-      border-radius: 10px;
+      width: 142px;
+      height: 180px;
+      border-radius: 8px;
       border: 2px solid var(--gold-dim);
-      outline: 1px solid var(--crimson-deep);
-      outline-offset: -4px;
-      background: #170e11;
+      background: #180e11;
       overflow: hidden;
       position: relative;
       cursor: zoom-in;
-      box-shadow: 0 3px 8px rgba(20, 10, 8, 0.35);
+      box-shadow: 0 3px 8px rgba(20, 10, 8, 0.36);
+      transition: border-color 0.16s ease;
+    }
+
+    .portrait-zoom-hint {
+      position: absolute;
+      right: 7px;
+      bottom: 7px;
+      z-index: 2;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(20, 11, 13, 0.8);
+      border: 1px solid rgba(216, 181, 114, 0.65);
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      opacity: 0;
+      transition: opacity 0.16s ease;
+      pointer-events: none;
+    }
+
+    body:not(.reorder-mode) .portrait-frame:hover .portrait-zoom-hint {
+      opacity: 1;
     }
 
     body.reorder-mode .portrait-frame {
@@ -664,9 +778,9 @@
         gap: 12px;
       }
       .portrait-frame {
-        width: 120px;
-        height: 152px;
-        border-radius: 8px;
+        width: 118px;
+        height: 150px;
+        border-radius: 7px;
       }
     }
 
@@ -686,6 +800,7 @@
       line-height: 1.25;
       white-space: pre-wrap;
       word-break: break-word;
+      margin: 0;
     }
 
     .npc-role-badge {
@@ -696,9 +811,11 @@
       font-weight: 700;
       font-style: italic;
       color: var(--ink-sepia);
-      padding: 4px 10px;
-      border: 1px solid rgba(110, 20, 24, 0.32);
-      background: rgba(110, 20, 24, 0.065);
+      padding: 4px 11px;
+      border: 1px solid rgba(110, 20, 24, 0.28);
+      border-left: 3px solid var(--crimson-royal);
+      background: rgba(110, 20, 24, 0.075);
+      border-radius: 0 2px 2px 0;
       white-space: pre-wrap;
       word-break: break-word;
     }
@@ -727,18 +844,12 @@
     }
 
     .npc-note {
-      font-size: 0.96rem;
+      font-size: 0.97rem;
       color: var(--ink-black);
       white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.62;
+      line-height: 1.66;
       min-height: 44px;
-    }
-
-    body:not(.edit-mode) .npc-note::first-letter {
-      font-family: var(--font-display);
-      font-weight: 800;
-      color: var(--crimson-deep);
     }
 
     body.edit-mode:not(.reorder-mode) [contenteditable="true"] {
@@ -748,8 +859,8 @@
     }
 
     body.edit-mode:not(.reorder-mode) [contenteditable="true"]:hover {
-      background: rgba(255, 250, 238, 0.55);
-      box-shadow: inset 0 0 0 1px rgba(181, 141, 70, 0.55);
+      background: rgba(255, 250, 238, 0.62);
+      box-shadow: inset 0 0 0 1px rgba(181, 141, 70, 0.58);
     }
 
     body.edit-mode:not(.reorder-mode) [contenteditable="true"]:focus {
@@ -790,14 +901,16 @@
     }
 
     .btn-card {
-      background: rgba(255, 250, 238, 0.65);
+      background: rgba(255, 250, 238, 0.72);
       border: 1px solid rgba(74, 53, 43, 0.45);
+      border-radius: 2px;
       color: var(--ink-sepia);
       font-family: var(--font-body);
       font-size: 0.85rem;
       font-weight: 700;
       padding: 4px 12px;
       cursor: pointer;
+      transition: background-color 0.14s, color 0.14s, border-color 0.14s;
     }
 
     .btn-card:hover {
@@ -813,12 +926,12 @@
 
     /* 空状态 */
     .empty-state {
-      grid-column: 1 / -1;
       text-align: center;
       padding: 64px 20px;
-      background: rgba(24, 15, 18, 0.86);
+      background: #160d0f;
       border: 1px dashed var(--gold-dim);
-      color: #bfa98e;
+      color: #c8b296;
+      border-radius: 2px;
     }
 
     .empty-state h3 {
@@ -828,11 +941,45 @@
       font-size: 1.3rem;
     }
 
-    /* ================= 四、4个居中模态框 ================= */
+    /* 快速回顶按钮（纯图标无额外文字） */
+    .scroll-top-btn {
+      position: fixed;
+      right: 22px;
+      bottom: 24px;
+      z-index: 45;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--gold-antique);
+      background: radial-gradient(circle at 35% 30%, #8f1d24 0%, #4d0c11 100%);
+      color: var(--parchment-light);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.15s ease;
+    }
+
+    .scroll-top-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .scroll-top-btn:hover {
+      border-color: var(--gold-bright);
+      transform: translateY(-2px);
+    }
+
+    /* ================= 四、4个居中模态框（去除全屏高斯模糊以保持零掉帧打开） ================= */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(6, 3, 4, 0.86);
+      background: rgba(6, 3, 4, 0.88);
       z-index: 100;
       display: none;
       align-items: center;
@@ -848,9 +995,8 @@
       background: linear-gradient(160deg, var(--parchment-light) 0%, var(--parchment-mid) 100%);
       color: var(--ink-black);
       border: 2px solid var(--gold-antique);
-      outline: 1px solid var(--crimson-deep);
-      outline-offset: -7px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      border-radius: 3px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.9);
       padding: 24px 26px;
       width: 100%;
       max-height: 90vh;
@@ -876,6 +1022,7 @@
       font-size: 1.25rem;
       font-weight: 800;
       color: var(--crimson-deep);
+      margin: 0;
     }
 
     .modal-close-x {
@@ -886,6 +1033,9 @@
       color: var(--crimson-deep);
       cursor: pointer;
       font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .modal-close-x:hover {
@@ -906,7 +1056,7 @@
     .modal-textarea {
       width: 100%;
       padding: 10px 12px;
-      background: rgba(255, 250, 240, 0.85);
+      background: rgba(255, 250, 240, 0.88);
       border: 1px solid rgba(115, 87, 40, 0.6);
       color: var(--ink-black);
       font-family: var(--font-body);
@@ -1121,10 +1271,8 @@
 
     /* 图片放大预览弹窗 */
     .zoom-container {
-      background: rgba(15, 9, 11, 0.96);
+      background: #0f090b;
       border: 2px solid var(--gold-antique);
-      outline: 1px solid var(--crimson-deep);
-      outline-offset: -6px;
       padding: 16px;
       max-width: 90vw;
       max-height: 90vh;
@@ -1167,7 +1315,7 @@
   <div class="page-wrapper">
     <!-- 一、全宽边缘延伸标题横幅区 -->
     <header class="hero-header">
-      <svg class="hero-crest" viewBox="0 0 120 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg class="hero-crest" viewBox="0 0 120 76" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M60 6C44 6 31 19 31 35C31 51 44 64 60 64C49 60 42 49 42 35C42 21 49 10 60 6Z" fill="#b58d46" opacity="0.9"/>
         <path d="M56 22C56 22 72 18 82 28C89 35 84 52 68 58C59 54 54 44 56 22Z" fill="#7f171d" stroke="#d4b06a" stroke-width="1.8"/>
         <circle cx="66" cy="34" r="2.6" fill="#0f0b0d"/>
@@ -1175,13 +1323,14 @@
         <path d="M12 38H26M94 38H108" stroke="#b58d46" stroke-width="1.4" stroke-linecap="round"/>
       </svg>
       <h1 class="hero-title">西冠城手札</h1>
+      <div class="hero-ornament-rule" aria-hidden="true"><span>✦</span></div>
       <p class="hero-subtitle">切利亚斯旧都档案、街头势力分布与暗线术语卷宗</p>
     </header>
 
     <!-- 二、全宽悬浮控制栏 -->
     <section class="sticky-toolbar" id="stickyToolbar">
       <div id="statusBar" class="status-bar">
-        <span>✦</span>
+        <span class="status-glyph">✦</span>
         <span id="statusText">卷宗就绪 · 当前处于只读查阅模式</span>
       </div>
 
@@ -1225,9 +1374,22 @@
         <div class="sidebar-list" id="sidebarList"></div>
       </aside>
 
-      <main class="npc-grid" id="npcGrid"></main>
+      <div class="grid-column">
+        <main class="npc-grid" id="npcGrid"></main>
+        <div class="empty-state hidden" id="emptyStateBox">
+          <h3 id="emptyStateTitle">暗巷卷宗尚属空白</h3>
+          <p id="emptyStateDesc">进入编辑模式后点击上方「＋ 新增条目」即可写下新的都市人物档案。</p>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- 快速返回顶部纯图标按钮 -->
+  <button type="button" id="scrollTopBtn" class="scroll-top-btn" aria-label="Scroll to top">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18 15l-6-6-6 6"/>
+    </svg>
+  </button>
 
   <!-- 模态框 1：图片放大预览弹窗 -->
   <div class="modal-backdrop" id="zoomModal">
@@ -1336,6 +1498,7 @@
     const BIN_ID = '6a0575ad250b1311c34a91e5';
     const API_KEY = '$2a$10$y8zzhvJgc6dFJB7rYbhP1eSAH4yZyI6hjqJheCSwTXr/NvJbtVIsC';
     const ACCESS_PASSWORD = '781674';
+    const CACHE_STORAGE_KEY = `westcrown_archive_cache_${BIN_ID}`;
     const FALLBACK_AVATAR =
       "data:image/svg+xml;utf8," +
       encodeURIComponent(
@@ -1352,12 +1515,16 @@
     const BASE_TITLE = document.title;
     let npcs = [];
     let nouns = '';
+    let searchHaystacks = [];
+    let lastPayloadSignature = '';
     let isEditMode = false;
     let isReorderMode = false;
     let isCloudBusy = false;
     let hasUnsavedChanges = false;
     let statusTimer = null;
     let lastJumpedIndex = -1;
+    let searchRafId = null;
+    let pupSdkLoaded = false;
 
     // 拖拽排序状态与帧节流
     let dragSrcIndex = -1;
@@ -1412,6 +1579,10 @@
     const sidebarList = document.getElementById('sidebarList');
     const sidebarTotal = document.getElementById('sidebarTotal');
     const npcGrid = document.getElementById('npcGrid');
+    const emptyStateBox = document.getElementById('emptyStateBox');
+    const emptyStateTitle = document.getElementById('emptyStateTitle');
+    const emptyStateDesc = document.getElementById('emptyStateDesc');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
 
     // 模态框元素
     const zoomModal = document.getElementById('zoomModal');
@@ -1437,6 +1608,18 @@
     const pwdCancelBtn = document.getElementById('pwdCancelBtn');
     const pwdCancelX = document.getElementById('pwdCancelX');
 
+    /* ================= 按需动态加载 FreeImage.host 图床 SDK ================= */
+    function loadPupSdkOnce() {
+      if (pupSdkLoaded) return;
+      pupSdkLoaded = true;
+      const script = document.createElement('script');
+      script.src = 'https://freeimage.host/sdk/pup.js';
+      script.async = true;
+      script.setAttribute('data-url', 'https://freeimage.host/upload');
+      script.setAttribute('data-auto-insert', 'direct-links');
+      document.head.appendChild(script);
+    }
+
     /* ================= 动态同步悬浮栏高度 ================= */
     function updateStickyOffsets() {
       const h = stickyToolbar ? stickyToolbar.offsetHeight : 148;
@@ -1449,6 +1632,25 @@
     }
     window.addEventListener('resize', updateStickyOffsets);
 
+    /* ================= 返回顶部按钮控制（被动滚动监听） ================= */
+    let scrollTicking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+          scrollTicking = false;
+          scrollTopBtn.classList.toggle('visible', window.scrollY > 360);
+        });
+      },
+      { passive: true }
+    );
+
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     /* ================= 工具函数 ================= */
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
@@ -1460,14 +1662,34 @@
         .replace(/'/g, '&#39;');
     }
 
-    function cornerSvg(cls) {
-      return `
-        <svg class="corner-ornament ${cls}" viewBox="0 0 28 28" fill="none">
-          <path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/>
-          <path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/>
-          <circle cx="6" cy="6" r="2.2" fill="#b58d46"/>
-        </svg>
-      `;
+    function rebuildSearchHaystacks() {
+      searchHaystacks = npcs.map((npc) =>
+        `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase()
+      );
+    }
+
+    function updateSearchHaystackAt(idx) {
+      const npc = npcs[idx];
+      if (!npc) return;
+      searchHaystacks[idx] = `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase();
+    }
+
+    function writeLocalCache(dataset) {
+      try {
+        localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(dataset));
+      } catch (_) {
+        // 忽略隐私模式或配额限制
+      }
+    }
+
+    function readLocalCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_STORAGE_KEY);
+        if (!raw) return null;
+        return normalizeDataset(JSON.parse(raw));
+      } catch (_) {
+        return null;
+      }
     }
 
     function getDefaultStatusText() {
@@ -1577,9 +1799,7 @@
       sidebarList.innerHTML = npcs
         .map((npc, idx) => {
           const displayName = (npc.name || '').trim() || '未命名条目';
-          const matchesSearch =
-            !keyword ||
-            `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase().includes(keyword);
+          const matchesSearch = !keyword || (searchHaystacks[idx] || '').includes(keyword);
           const classes = [
             'sidebar-item',
             idx === lastJumpedIndex ? 'active-jump' : '',
@@ -1607,19 +1827,19 @@
       if (Number.isNaN(idx) || idx < 0 || idx >= npcs.length) return;
       lastJumpedIndex = idx;
 
-      if (searchInput.value.trim()) {
-        const target = npcGrid.querySelector(`.npc-card[data-index="${idx}"]`);
-        if (!target) {
-          searchInput.value = '';
-          clearSearchBtn.classList.remove('visible');
-          renderCards();
-        }
-      }
-
-      renderSidebar();
-
       const card = npcGrid.querySelector(`.npc-card[data-index="${idx}"]`);
       if (!card) return;
+
+      if (card.classList.contains('hidden-card') && searchInput.value.trim()) {
+        searchInput.value = '';
+        clearSearchBtn.classList.remove('visible');
+        applySearchFilter();
+      }
+
+      const prevActive = sidebarList.querySelector('.sidebar-item.active-jump');
+      if (prevActive) prevActive.classList.remove('active-jump');
+      const nextActive = sidebarList.querySelector(`.sidebar-item[data-jump-index="${idx}"]`);
+      if (nextActive) nextActive.classList.add('active-jump');
 
       updateStickyOffsets();
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1627,7 +1847,7 @@
       card.classList.remove('jump-highlight');
       void card.offsetWidth;
       card.classList.add('jump-highlight');
-      setTimeout(() => card.classList.remove('jump-highlight'), 1550);
+      setTimeout(() => card.classList.remove('jump-highlight'), 1450);
     }
 
     sidebarList.addEventListener('click', (e) => {
@@ -1638,6 +1858,7 @@
 
     /* 原地同步 DOM 索引与编号 */
     function refreshCardIndicesInDom() {
+      rebuildSearchHaystacks();
       const cards = npcGrid.querySelectorAll('.npc-card');
       const total = cards.length;
       cards.forEach((card, i) => {
@@ -1666,6 +1887,53 @@
         });
       });
       renderSidebar();
+    }
+
+    /* ================= 零重建毫秒级检索过滤 ================= */
+    function applySearchFilter() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      clearSearchBtn.classList.toggle('visible', keyword.length > 0);
+
+      if (npcs.length === 0) {
+        countBadge.textContent = '共 0 位人物';
+        npcGrid.classList.add('hidden');
+        emptyStateTitle.textContent = '暗巷卷宗尚属空白';
+        emptyStateDesc.textContent = '进入编辑模式后点击上方「＋ 新增条目」即可写下新的都市人物档案。';
+        emptyStateBox.classList.remove('hidden');
+        renderSidebar();
+        return;
+      }
+
+      let visibleCount = 0;
+      const cards = npcGrid.children;
+      const sidebarButtons = sidebarList.children;
+
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const idx = Number(card.dataset.index);
+        const matches = !keyword || (searchHaystacks[idx] || '').includes(keyword);
+        card.classList.toggle('hidden-card', !matches);
+        if (matches) visibleCount++;
+
+        const sideBtn = sidebarButtons[idx];
+        if (sideBtn) {
+          sideBtn.classList.toggle('dimmed', !matches);
+        }
+      }
+
+      countBadge.textContent = keyword
+        ? `匹配 ${visibleCount} / 共 ${npcs.length} 位人物`
+        : `共 ${npcs.length} 位人物`;
+
+      if (visibleCount === 0) {
+        npcGrid.classList.add('hidden');
+        emptyStateTitle.textContent = '未检索到符合线索的卷宗';
+        emptyStateDesc.textContent = '请尝试更换关键词，或点击搜索框右侧 ✕ 恢复显示全部人物。';
+        emptyStateBox.classList.remove('hidden');
+      } else {
+        npcGrid.classList.remove('hidden');
+        emptyStateBox.classList.add('hidden');
+      }
     }
 
     /* ================= 密码验证弹窗（Promise） ================= */
@@ -1715,32 +1983,14 @@
       }
     });
 
-    /* ================= 羊皮纸卡片渲染 ================= */
+    /* ================= 羊皮纸卡片全量结构渲染 ================= */
     function renderCards() {
-      const keyword = searchInput.value.trim().toLowerCase();
-      clearSearchBtn.classList.toggle('visible', keyword.length > 0);
-
-      const indexedList = npcs
-        .map((npc, idx) => ({ npc, idx }))
-        .filter(({ npc }) => {
-          if (!keyword) return true;
-          const haystack = `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase();
-          return haystack.includes(keyword);
-        });
-
-      countBadge.textContent = keyword
-        ? `匹配 ${indexedList.length} / 共 ${npcs.length} 位人物`
-        : `共 ${npcs.length} 位人物`;
-
+      rebuildSearchHaystacks();
       renderSidebar();
 
-      if (indexedList.length === 0) {
-        npcGrid.innerHTML = `
-          <div class="empty-state">
-            <h3>${keyword ? '未检索到符合线索的卷宗' : '暗巷卷宗尚属空白'}</h3>
-            <p>${keyword ? '请尝试更换关键词，或点击搜索框右侧 ✕ 恢复显示全部人物。' : '进入编辑模式后点击上方「＋ 新增条目」即可写下新的都市人物档案。'}</p>
-          </div>
-        `;
+      if (npcs.length === 0) {
+        npcGrid.innerHTML = '';
+        applySearchFilter();
         return;
       }
 
@@ -1748,17 +1998,12 @@
       const editableAttr = canEditText ? 'contenteditable="true"' : '';
       const draggableAttr = isReorderMode ? 'draggable="true"' : '';
 
-      npcGrid.innerHTML = indexedList
-        .map(({ npc, idx }) => {
+      npcGrid.innerHTML = npcs
+        .map((npc, idx) => {
           const imgSrc = npc.img && npc.img.trim() ? npc.img.trim() : FALLBACK_AVATAR;
 
           return `
             <article class="npc-card" data-index="${idx}" ${draggableAttr}>
-              ${cornerSvg('corner-tl')}
-              ${cornerSvg('corner-tr')}
-              ${cornerSvg('corner-bl')}
-              ${cornerSvg('corner-br')}
-
               <div class="reorder-bar reorder-only">
                 <span class="reorder-num">⋮⋮ 序号 #${idx + 1} · 拖拽卡片改换位置</span>
                 <div class="reorder-step-btns">
@@ -1773,10 +2018,14 @@
                     <img
                       src="${escapeHtml(imgSrc)}"
                       alt="${escapeHtml(npc.name || '人物肖像')}"
+                      width="142"
+                      height="180"
                       draggable="false"
+                      loading="lazy"
                       decoding="async"
                       onerror="this.onerror=null; this.src=FALLBACK_AVATAR;"
                     />
+                    <span class="portrait-zoom-hint" aria-hidden="true">⌕</span>
                   </div>
                 </div>
 
@@ -1817,6 +2066,8 @@
           `;
         })
         .join('');
+
+      applySearchFilter();
     }
 
     /* ================= 卡片内文本纯文本粘贴 & 失焦对比保存 ================= */
@@ -1854,6 +2105,7 @@
         const oldVal = (npcs[idx][field] || '').trim();
         if (newVal !== oldVal) {
           npcs[idx][field] = newVal;
+          updateSearchHaystackAt(idx);
           setUnsavedState(true);
           if (field === 'name' || field === 'role') {
             renderSidebar();
@@ -2025,11 +2277,18 @@
 
     npcGrid.addEventListener('dragend', clearDragVisuals);
 
-    /* ================= 搜索框事件 ================= */
-    searchInput.addEventListener('input', renderCards);
+    /* ================= 搜索框事件（rAF 合并防抖） ================= */
+    searchInput.addEventListener('input', () => {
+      if (searchRafId) cancelAnimationFrame(searchRafId);
+      searchRafId = requestAnimationFrame(() => {
+        searchRafId = null;
+        applySearchFilter();
+      });
+    });
+
     clearSearchBtn.addEventListener('click', () => {
       searchInput.value = '';
-      renderCards();
+      applySearchFilter();
       searchInput.focus();
     });
 
@@ -2064,6 +2323,7 @@
     }
 
     function openImageModal(idx) {
+      loadPupSdkOnce();
       activeImageIndex = idx;
       awaitingPluginUpload = false;
       userInteractedWithUrlInput = false;
@@ -2163,7 +2423,7 @@
       applyNewImageUrl(clean, false);
     });
 
-    /* ================= 云端同步与保存（JSONBin.io v3） ================= */
+    /* ================= 云端同步与保存（JSONBin.io v3 + 本地缓存秒开） ================= */
     function setCloudButtonsDisabled(disabled) {
       isCloudBusy = disabled;
       syncCloudBtn.disabled = disabled;
@@ -2208,11 +2468,18 @@
 
         const data = await res.json();
         const normalized = normalizeDataset(data);
-        npcs = normalized.npcs;
-        nouns = normalized.nouns;
-        lastJumpedIndex = -1;
+        const nextSignature = JSON.stringify(normalized);
+        writeLocalCache(normalized);
+
+        if (!(isInitial && nextSignature === lastPayloadSignature)) {
+          npcs = normalized.npcs;
+          nouns = normalized.nouns;
+          lastPayloadSignature = nextSignature;
+          lastJumpedIndex = -1;
+          renderCards();
+        }
+
         setUnsavedState(false);
-        renderCards();
         showStatus(`云端同步成功，共载入 ${npcs.length} 条人物档案`, 'success', 4000);
       } catch (err) {
         console.error('Sync failed:', err);
@@ -2253,6 +2520,8 @@
           throw new Error(`HTTP ${res.status}`);
         }
 
+        writeLocalCache(payload);
+        lastPayloadSignature = JSON.stringify(payload);
         setUnsavedState(false);
         showStatus('云端保存成功！所有情报档案已同步封存', 'success', 4500);
       } catch (err) {
@@ -2271,6 +2540,7 @@
           showStatus('密码验证未通过，保持只读查阅模式', 'normal', 3000);
           return;
         }
+        loadPupSdkOnce();
         isEditMode = true;
         document.body.classList.add('edit-mode');
         toggleModeBtn.classList.add('btn-mode-active');
@@ -2423,7 +2693,7 @@
       }
     });
 
-    /* ================= 页面防丢失拦截 & 启动加载 ================= */
+    /* ================= 页面防丢失拦截 & 极速启动加载 ================= */
     window.onbeforeunload = function (e) {
       if (hasUnsavedChanges) {
         const msg = '当前仍有未保存到云端的情报修改，确定要离开吗？';
@@ -2433,10 +2703,19 @@
       }
     };
 
-    window.onload = function () {
+    document.addEventListener('DOMContentLoaded', () => {
       updateStickyOffsets();
+      if (isCloudConfigured()) {
+        const cached = readLocalCache();
+        if (cached) {
+          npcs = cached.npcs;
+          nouns = cached.nouns;
+          lastPayloadSignature = JSON.stringify(cached);
+          renderCards();
+        }
+      }
       fetchFromCloud(true);
-    };
+    });
   </script>
 </body>
 </html>
