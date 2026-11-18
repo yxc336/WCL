@@ -1,0 +1,2442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>西冠城手札</title>
+
+  <!-- FreeImage.host 图床插件 SDK -->
+  <script async src="https://freeimage.host/sdk/pup.js" data-url="https://freeimage.host/upload" data-auto-insert="direct-links"></script>
+
+  <!-- 古典衬线字体（离线时自动回退至系统宋体/衬线字体） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-obsidian: #2a1e15;
+      --bg-marble: #181014;
+      --crimson-deep: #5e1116;
+      --crimson-royal: #7f171d;
+      --crimson-alert: #a81c24;
+      --gold-antique: #b58d46;
+      --gold-bright: #d8b572;
+      --gold-dim: #735728;
+      --parchment-light: #f3e8d2;
+      --parchment-mid: #e6d4b3;
+      --parchment-dark: #ceb68d;
+      --ink-black: #211714;
+      --ink-sepia: #4a352b;
+      --ink-muted: #6e5546;
+
+      --scroll-offset: 175px;
+      --sidebar-top: 170px;
+
+      --font-display: "Cinzel", "Noto Serif SC", "Songti SC", "SimSun", Georgia, serif;
+      --font-body: "Cormorant Garamond", "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-obsidian);
+      color: var(--parchment-light);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      padding-bottom: 64px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 纯 CSS 深色做旧羊皮纸背景层（无外链、GPU 单层缓存、极低性能开销） */
+    .bg-wallpaper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      transform: translateZ(0);
+      background-color: #523d2a;
+      background-image:
+        radial-gradient(ellipse at 50% 35%, rgba(138, 108, 76, 0.42) 0%, rgba(72, 52, 34, 0.36) 56%, rgba(28, 19, 12, 0.84) 100%),
+        radial-gradient(circle at 18% 22%, rgba(162, 126, 86, 0.16) 0%, transparent 42%),
+        radial-gradient(circle at 82% 78%, rgba(36, 22, 14, 0.34) 0%, transparent 45%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(28, 18, 10, 0.035) 0px,
+          rgba(28, 18, 10, 0.035) 1px,
+          transparent 1px,
+          transparent 5px
+        ),
+        linear-gradient(160deg, #6b5239 0%, #4f3b28 52%, #362619 100%);
+    }
+
+    /* 双模式权限控制 */
+    body:not(.edit-mode) .admin-only {
+      display: none !important;
+    }
+    body:not(.reorder-mode) .reorder-only {
+      display: none !important;
+    }
+
+    .page-wrapper {
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ================= 一、全宽边缘延伸标题横幅区 ================= */
+    .hero-header {
+      width: 100%;
+      text-align: center;
+      padding: 32px 20px 26px;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% 50%, rgba(72, 16, 22, 0.45) 0%, rgba(24, 12, 14, 0.92) 100%),
+        linear-gradient(180deg, rgba(34, 15, 18, 0.92) 0%, rgba(20, 11, 13, 0.96) 100%);
+      border-top: 1px solid var(--gold-dim);
+      border-bottom: 1px solid var(--gold-dim);
+      box-shadow: inset 0 -1px 0 var(--crimson-deep);
+      position: relative;
+    }
+
+    .hero-crest {
+      width: 62px;
+      height: 40px;
+      margin: 0 auto 8px;
+      display: block;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 3.4vw, 2.65rem);
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--parchment-light);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 18px rgba(94, 17, 22, 0.45);
+      margin-bottom: 6px;
+    }
+
+    .hero-subtitle {
+      font-size: 0.98rem;
+      color: #d6c3aa;
+      font-style: italic;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ================= 二、全宽悬浮控制栏（Sticky Header） ================= */
+    .sticky-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      width: 100%;
+      background: rgba(20, 12, 14, 0.95);
+      border-top: 2px solid var(--crimson-royal);
+      border-bottom: 1px solid var(--gold-dim);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65);
+      padding: 12px 22px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transform: translateZ(0);
+    }
+
+    /* 单行状态提示条 */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(12, 7, 9, 0.85);
+      border: 1px solid rgba(181, 141, 70, 0.3);
+      border-left: 3px solid var(--gold-antique);
+      font-size: 0.88rem;
+      color: #d6c3a8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+    }
+
+    .status-bar.status-success {
+      border-left-color: #499b6a;
+      color: #b9e6c9;
+      background: rgba(20, 42, 28, 0.65);
+    }
+
+    .status-bar.status-warn {
+      border-left-color: #d89b3c;
+      color: #f6d79c;
+      background: rgba(54, 34, 12, 0.7);
+    }
+
+    .status-bar.status-error {
+      border-left-color: #c9323a;
+      color: #f7b7ba;
+      background: rgba(66, 14, 18, 0.75);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar-search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid rgba(181, 141, 70, 0.2);
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      color: var(--gold-antique);
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 7px 34px 7px 32px;
+      background: #10090b;
+      border: 1px solid rgba(115, 87, 40, 0.65);
+      color: var(--parchment-light);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--gold-bright);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #a68f76;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 2px 5px;
+      display: none;
+    }
+
+    .search-clear-btn.visible {
+      display: inline-block;
+    }
+
+    .search-clear-btn:hover {
+      color: var(--gold-bright);
+    }
+
+    .count-badge {
+      font-size: 0.85rem;
+      color: var(--gold-antique);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 8px 13px;
+      border: 1px solid var(--gold-dim);
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(180deg, #271b1e 0%, #160f11 100%);
+      color: var(--gold-bright);
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--gold-bright);
+      background: linear-gradient(180deg, #352328 0%, #1f1417 100%);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-crimson {
+      background: linear-gradient(180deg, var(--crimson-royal) 0%, #4a0c10 100%);
+      color: var(--parchment-light);
+      border-color: var(--gold-antique);
+    }
+
+    .btn-crimson:hover:not(:disabled) {
+      background: linear-gradient(180deg, #981d25 0%, var(--crimson-deep) 100%);
+      border-color: var(--gold-bright);
+    }
+
+    .btn-mode-active {
+      background: linear-gradient(180deg, #4f1d3e 0%, #2a0f21 100%);
+      border-color: #d69ce0;
+      color: #f7e4fa;
+    }
+
+    .btn-reorder-active {
+      background: linear-gradient(180deg, #75501a 0%, #452e0d 100%) !important;
+      border-color: #ffd479 !important;
+      color: #fff6de !important;
+    }
+
+    .btn-save-unsaved {
+      background: linear-gradient(180deg, #b8252e 0%, #6e1016 100%) !important;
+      border-color: #ffd479 !important;
+      color: #fff6e0 !important;
+      box-shadow: 0 0 12px rgba(201, 44, 54, 0.65);
+    }
+
+    /* ================= 三、主工作区：左侧人物名录竖排 + 右侧羊皮纸卡片网格 ================= */
+    .workspace-layout {
+      display: flex;
+      align-items: flex-start;
+      gap: 22px;
+      padding: 0 22px;
+      width: 100%;
+    }
+
+    /* 左侧竖排姓名快速跳转栏 */
+    .npc-sidebar {
+      width: 232px;
+      flex-shrink: 0;
+      position: sticky;
+      top: var(--sidebar-top);
+      max-height: calc(100vh - var(--sidebar-top) - 18px);
+      display: flex;
+      flex-direction: column;
+      background: rgba(22, 13, 15, 0.93);
+      border: 1px solid var(--gold-dim);
+      outline: 1px solid var(--crimson-deep);
+      outline-offset: -5px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid rgba(181, 141, 70, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--gold-bright);
+    }
+
+    .sidebar-total {
+      font-size: 0.78rem;
+      color: #b59f84;
+    }
+
+    .sidebar-list {
+      overflow-y: auto;
+      padding: 6px 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-dim) rgba(15, 10, 12, 0.6);
+    }
+
+    .sidebar-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar-list::-webkit-scrollbar-track {
+      background: rgba(15, 10, 12, 0.6);
+    }
+    .sidebar-list::-webkit-scrollbar-thumb {
+      background: var(--gold-dim);
+      border-radius: 3px;
+    }
+
+    .sidebar-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      border-left: 2px solid transparent;
+      color: #dccbb3;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 5px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      transition: background-color 0.14s, border-color 0.14s, color 0.14s;
+    }
+
+    .sidebar-item:hover {
+      background: rgba(127, 23, 29, 0.34);
+      border-left-color: var(--gold-bright);
+      color: #fff6e5;
+    }
+
+    .sidebar-item.active-jump {
+      background: rgba(127, 23, 29, 0.55);
+      border-color: rgba(181, 141, 70, 0.45);
+      border-left-color: var(--gold-bright);
+      color: #fff8ea;
+    }
+
+    .sidebar-item.dimmed {
+      opacity: 0.38;
+    }
+
+    .sidebar-num {
+      font-family: var(--font-display);
+      font-size: 0.74rem;
+      color: var(--gold-antique);
+      flex-shrink: 0;
+      min-width: 24px;
+    }
+
+    .sidebar-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .sidebar-empty {
+      padding: 18px 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #8f7b66;
+      font-style: italic;
+    }
+
+    @media (max-width: 880px) {
+      .workspace-layout {
+        flex-direction: column;
+        padding: 0 14px;
+        gap: 16px;
+      }
+      .npc-sidebar {
+        width: 100%;
+        position: static;
+        max-height: 210px;
+      }
+      .sidebar-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 4px;
+      }
+    }
+
+    /* 右侧卡片网格 */
+    .npc-grid {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(385px, 1fr));
+      gap: 24px;
+    }
+
+    @media (max-width: 460px) {
+      .npc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .npc-card {
+      position: relative;
+      scroll-margin-top: var(--scroll-offset);
+      content-visibility: auto;
+      contain-intrinsic-size: auto 380px;
+      contain: layout style paint;
+      background: linear-gradient(155deg, var(--parchment-light) 0%, var(--parchment-mid) 60%, var(--parchment-dark) 100%);
+      color: var(--ink-black);
+      padding: 20px 20px 18px;
+      border: 2px solid var(--gold-dim);
+      outline: 1px solid rgba(127, 23, 29, 0.48);
+      outline-offset: -7px;
+      box-shadow: 0 6px 16px rgba(18, 10, 6, 0.48);
+      transition: transform 0.16s ease, border-color 0.16s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body:not(.reorder-mode) .npc-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold-bright);
+    }
+
+    /* 跳转高亮闪烁效果 */
+    @keyframes jumpFlash {
+      0% { box-shadow: 0 0 0 4px var(--gold-bright), 0 0 28px rgba(216, 181, 114, 0.9); }
+      70% { box-shadow: 0 0 0 4px var(--gold-bright), 0 0 18px rgba(216, 181, 114, 0.5); }
+      100% { box-shadow: 0 6px 16px rgba(18, 10, 6, 0.48); }
+    }
+
+    .npc-card.jump-highlight {
+      animation: jumpFlash 1.5s ease-out;
+      border-color: var(--gold-bright);
+    }
+
+    /* 拖拽位置模式 */
+    body.reorder-mode .npc-card {
+      cursor: grab;
+      border-style: dashed;
+      border-color: var(--crimson-royal);
+      box-shadow: none;
+      transition: none;
+      user-select: none;
+    }
+
+    body.reorder-mode .npc-card:active {
+      cursor: grabbing;
+    }
+
+    body.reorder-mode .npc-card * {
+      pointer-events: none;
+    }
+
+    body.reorder-mode .npc-card .reorder-step-btns,
+    body.reorder-mode .npc-card .btn-step {
+      pointer-events: auto;
+    }
+
+    body.reorder-mode .npc-card img {
+      -webkit-user-drag: none;
+    }
+
+    .npc-card.dragging {
+      opacity: 0.35;
+    }
+
+    .npc-card.drag-over {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 3px var(--gold-bright);
+    }
+
+    /* 拖拽模式顶部标识条 */
+    .reorder-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 5px 10px;
+      background: rgba(94, 17, 22, 0.12);
+      border: 1px dashed rgba(127, 23, 29, 0.45);
+      color: var(--crimson-deep);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .reorder-step-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-step {
+      border: 1px solid rgba(115, 87, 40, 0.55);
+      background: rgba(255, 250, 238, 0.85);
+      color: var(--ink-sepia);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      cursor: pointer;
+    }
+
+    .btn-step:hover:not(:disabled) {
+      background: var(--crimson-deep);
+      color: var(--parchment-light);
+    }
+
+    .btn-step:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* 四角金属雕花装饰 */
+    .corner-ornament {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+      opacity: 0.82;
+      z-index: 2;
+    }
+    .corner-tl { top: 4px; left: 4px; }
+    .corner-tr { top: 4px; right: 4px; transform: scaleX(-1); }
+    .corner-bl { bottom: 4px; left: 4px; transform: scaleY(-1); }
+    .corner-br { bottom: 4px; right: 4px; transform: scale(-1, -1); }
+
+    /* 卡片头部 */
+    .card-top {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(110, 20, 24, 0.28);
+    }
+
+    .portrait-wrap {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .portrait-frame {
+      width: 144px;
+      height: 183px;
+      border-radius: 10px;
+      border: 2px solid var(--gold-dim);
+      outline: 1px solid var(--crimson-deep);
+      outline-offset: -4px;
+      background: #170e11;
+      overflow: hidden;
+      position: relative;
+      cursor: zoom-in;
+      box-shadow: 0 3px 8px rgba(20, 10, 8, 0.35);
+    }
+
+    body.reorder-mode .portrait-frame {
+      cursor: grab;
+      box-shadow: none;
+    }
+
+    body:not(.reorder-mode) .portrait-frame:hover {
+      border-color: var(--crimson-royal);
+    }
+
+    .portrait-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    @media (max-width: 420px) {
+      .card-top {
+        gap: 12px;
+      }
+      .portrait-frame {
+        width: 120px;
+        height: 152px;
+        border-radius: 8px;
+      }
+    }
+
+    .card-identity {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .npc-name {
+      font-family: var(--font-display);
+      font-size: 1.38rem;
+      font-weight: 800;
+      color: var(--crimson-deep);
+      line-height: 1.25;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .npc-role-badge {
+      display: inline-block;
+      align-self: flex-start;
+      max-width: 100%;
+      font-size: 0.94rem;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink-sepia);
+      padding: 4px 10px;
+      border: 1px solid rgba(110, 20, 24, 0.32);
+      background: rgba(110, 20, 24, 0.065);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* 卡片正文 */
+    .card-body {
+      position: relative;
+      z-index: 1;
+      padding-top: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .section-block-label {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--crimson-deep);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .npc-note {
+      font-size: 0.96rem;
+      color: var(--ink-black);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.62;
+      min-height: 44px;
+    }
+
+    body:not(.edit-mode) .npc-note::first-letter {
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: var(--crimson-deep);
+    }
+
+    body.edit-mode:not(.reorder-mode) [contenteditable="true"] {
+      outline: none;
+      border-radius: 2px;
+      cursor: text;
+    }
+
+    body.edit-mode:not(.reorder-mode) [contenteditable="true"]:hover {
+      background: rgba(255, 250, 238, 0.55);
+      box-shadow: inset 0 0 0 1px rgba(181, 141, 70, 0.55);
+    }
+
+    body.edit-mode:not(.reorder-mode) [contenteditable="true"]:focus {
+      background: #fffaf0;
+      box-shadow: inset 0 0 0 2px var(--crimson-royal);
+    }
+
+    body.edit-mode [contenteditable="true"]:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(110, 85, 70, 0.55);
+      font-style: italic;
+      font-weight: 400;
+      pointer-events: none;
+    }
+
+    /* 卡片底部操作栏 */
+    .card-footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(110, 20, 24, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-index-hint {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      font-style: italic;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-card {
+      background: rgba(255, 250, 238, 0.65);
+      border: 1px solid rgba(74, 53, 43, 0.45);
+      color: var(--ink-sepia);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      cursor: pointer;
+    }
+
+    .btn-card:hover {
+      background: var(--crimson-deep);
+      color: var(--parchment-light);
+      border-color: var(--crimson-deep);
+    }
+
+    .btn-card.delete:hover {
+      background: #420a0d;
+      border-color: #420a0d;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 64px 20px;
+      background: rgba(24, 15, 18, 0.86);
+      border: 1px dashed var(--gold-dim);
+      color: #bfa98e;
+    }
+
+    .empty-state h3 {
+      font-family: var(--font-display);
+      color: var(--gold-bright);
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+    }
+
+    /* ================= 四、4个居中模态框 ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 3, 4, 0.86);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: linear-gradient(160deg, var(--parchment-light) 0%, var(--parchment-mid) 100%);
+      color: var(--ink-black);
+      border: 2px solid var(--gold-antique);
+      outline: 1px solid var(--crimson-deep);
+      outline-offset: -7px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      padding: 24px 26px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-sm { max-width: 440px; }
+    .modal-md { max-width: 560px; }
+    .modal-lg { max-width: 780px; }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(110, 20, 24, 0.32);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--crimson-deep);
+    }
+
+    .modal-close-x {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(110, 20, 24, 0.4);
+      background: transparent;
+      color: var(--crimson-deep);
+      cursor: pointer;
+      font-size: 1.05rem;
+    }
+
+    .modal-close-x:hover {
+      background: var(--crimson-deep);
+      color: var(--parchment-light);
+    }
+
+    .modal-label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--crimson-deep);
+      margin-bottom: 6px;
+    }
+
+    .modal-input,
+    .modal-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 250, 240, 0.85);
+      border: 1px solid rgba(115, 87, 40, 0.6);
+      color: var(--ink-black);
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      outline: none;
+    }
+
+    .modal-input:focus,
+    .modal-textarea:focus {
+      border-color: var(--crimson-deep);
+      background: #fffcf5;
+    }
+
+    .modal-textarea {
+      min-height: 340px;
+      resize: vertical;
+      line-height: 1.65;
+    }
+
+    .modal-footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(110, 20, 24, 0.22);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-modal-primary {
+      font-family: var(--font-display);
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 8px 20px;
+      border: 1px solid var(--gold-antique);
+      background: linear-gradient(180deg, var(--crimson-royal) 0%, var(--crimson-deep) 100%);
+      color: var(--parchment-light);
+      cursor: pointer;
+    }
+
+    .btn-modal-primary:hover {
+      background: #961c24;
+      border-color: var(--gold-bright);
+    }
+
+    .btn-modal-secondary {
+      font-family: var(--font-display);
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border: 1px solid rgba(74, 53, 43, 0.45);
+      background: rgba(74, 53, 43, 0.1);
+      color: var(--ink-sepia);
+      cursor: pointer;
+    }
+
+    .btn-modal-secondary:hover {
+      background: rgba(74, 53, 43, 0.22);
+    }
+
+    /* ===== 密档权限验证弹窗专属美化样式 ===== */
+    .pwd-modal-box {
+      max-width: 430px;
+      padding: 30px 28px 24px;
+      text-align: center;
+    }
+
+    .pwd-close-abs {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 3;
+    }
+
+    .pwd-crest-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .pwd-title-center {
+      text-align: center;
+      font-size: 1.38rem;
+      letter-spacing: 0.14em;
+      margin-bottom: 2px;
+    }
+
+    .pwd-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px auto 16px;
+      max-width: 240px;
+      color: var(--gold-antique);
+      font-size: 0.78rem;
+    }
+
+    .pwd-divider::before,
+    .pwd-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(127, 23, 29, 0.55), transparent);
+    }
+
+    .pwd-prompt-center {
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--ink-sepia);
+      margin-bottom: 12px;
+    }
+
+    .pwd-input-centered {
+      text-align: center;
+      font-size: 1.12rem;
+      letter-spacing: 0.36em;
+      padding: 11px 16px;
+      background: rgba(255, 252, 245, 0.9);
+      border: 1px solid rgba(115, 87, 40, 0.68);
+    }
+
+    .pwd-input-centered::placeholder {
+      letter-spacing: 0.12em;
+      font-size: 0.92rem;
+      color: rgba(110, 85, 70, 0.6);
+    }
+
+    .pwd-input-centered:focus {
+      border-color: var(--crimson-royal);
+      background: #fffdf8;
+    }
+
+    .pwd-error-center {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .pwd-footer-center {
+      justify-content: center;
+      gap: 14px;
+      margin-top: 14px;
+      padding-top: 16px;
+    }
+
+    @keyframes modalShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .pwd-modal-box.shake {
+      animation: modalShake 0.32s ease;
+    }
+
+    /* 换图弹窗分区 & 实时微圆角预览 */
+    .upload-zone {
+      padding: 15px;
+      background: rgba(110, 20, 24, 0.06);
+      border: 1px dashed var(--crimson-deep);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .upload-hint {
+      font-size: 0.85rem;
+      color: var(--ink-sepia);
+      margin-top: 8px;
+    }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+    }
+
+    .divider-text::before,
+    .divider-text::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(110, 20, 24, 0.22);
+    }
+
+    .modal-preview-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .modal-preview-arch {
+      width: 72px;
+      height: 92px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      border: 2px solid var(--gold-dim);
+      background: #170e11;
+      overflow: hidden;
+    }
+
+    .modal-preview-arch img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* 图片放大预览弹窗 */
+    .zoom-container {
+      background: rgba(15, 9, 11, 0.96);
+      border: 2px solid var(--gold-antique);
+      outline: 1px solid var(--crimson-deep);
+      outline-offset: -6px;
+      padding: 16px;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .zoom-container img {
+      max-width: 82vw;
+      max-height: 75vh;
+      object-fit: contain;
+      border: 1px solid var(--gold-dim);
+      background: #0d080a;
+    }
+
+    .zoom-caption {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--gold-bright);
+      letter-spacing: 0.08em;
+    }
+
+    .pwd-error {
+      color: #9e1218;
+      font-size: 0.86rem;
+      font-weight: 700;
+      min-height: 20px;
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-wallpaper" aria-hidden="true"></div>
+
+  <div class="page-wrapper">
+    <!-- 一、全宽边缘延伸标题横幅区 -->
+    <header class="hero-header">
+      <svg class="hero-crest" viewBox="0 0 120 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M60 6C44 6 31 19 31 35C31 51 44 64 60 64C49 60 42 49 42 35C42 21 49 10 60 6Z" fill="#b58d46" opacity="0.9"/>
+        <path d="M56 22C56 22 72 18 82 28C89 35 84 52 68 58C59 54 54 44 56 22Z" fill="#7f171d" stroke="#d4b06a" stroke-width="1.8"/>
+        <circle cx="66" cy="34" r="2.6" fill="#0f0b0d"/>
+        <circle cx="76" cy="36" r="2.4" fill="#0f0b0d"/>
+        <path d="M12 38H26M94 38H108" stroke="#b58d46" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <h1 class="hero-title">西冠城手札</h1>
+      <p class="hero-subtitle">切利亚斯旧都档案、街头势力分布与暗线术语卷宗</p>
+    </header>
+
+    <!-- 二、全宽悬浮控制栏 -->
+    <section class="sticky-toolbar" id="stickyToolbar">
+      <div id="statusBar" class="status-bar">
+        <span>✦</span>
+        <span id="statusText">卷宗就绪 · 当前处于只读查阅模式</span>
+      </div>
+
+      <div class="toolbar-actions">
+        <!-- 基础操作按钮（始终可见） -->
+        <div class="btn-group">
+          <button type="button" id="toggleModeBtn" class="btn btn-crimson">✒ 进入编辑模式</button>
+          <button type="button" id="syncCloudBtn" class="btn">⟳ 从云端同步</button>
+          <button type="button" id="exportJsonBtn" class="btn">⤓ 导出本地 JSON 备份</button>
+        </div>
+
+        <!-- 管理员操作按钮（仅编辑模式显示） -->
+        <div class="btn-group admin-only">
+          <button type="button" id="toggleReorderBtn" class="btn">✥ 编辑位置</button>
+          <button type="button" id="nounsBtn" class="btn">📜 专有名词 / 术语记录</button>
+          <button type="button" id="addRowBtn" class="btn">＋ 新增条目</button>
+          <button type="button" id="importJsonBtn" class="btn">⤒ 导入本地 JSON 覆盖</button>
+          <button type="button" id="saveCloudBtn" class="btn btn-crimson">🕯 保存到云端</button>
+          <input type="file" id="importFileInput" accept=".json" class="hidden-file-input" />
+        </div>
+      </div>
+
+      <!-- 检索栏 -->
+      <div class="toolbar-search-row">
+        <div class="search-box">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="searchInput" placeholder="检索名称、身份/标签或备注信息中的线索……" />
+          <button type="button" id="clearSearchBtn" class="search-clear-btn" title="清空检索">✕</button>
+        </div>
+        <div class="count-badge" id="countBadge">共 0 位人物</div>
+      </div>
+    </section>
+
+    <!-- 三、左右分栏工作区：左侧竖排姓名索引 + 右侧羊皮纸卡片网格 -->
+    <div class="workspace-layout">
+      <aside class="npc-sidebar" aria-label="人物快速跳转目录">
+        <div class="sidebar-header">
+          <span class="sidebar-title">✦ 人物名录</span>
+          <span class="sidebar-total" id="sidebarTotal">0</span>
+        </div>
+        <div class="sidebar-list" id="sidebarList"></div>
+      </aside>
+
+      <main class="npc-grid" id="npcGrid"></main>
+    </div>
+  </div>
+
+  <!-- 模态框 1：图片放大预览弹窗 -->
+  <div class="modal-backdrop" id="zoomModal">
+    <div class="zoom-container" id="zoomBox">
+      <img id="zoomImg" src="" alt="人物肖像放大" />
+      <div class="zoom-caption" id="zoomCaption"></div>
+    </div>
+  </div>
+
+  <!-- 模态框 2：更换图片弹窗 -->
+  <div class="modal-backdrop" id="imageModal">
+    <div class="modal-box modal-md">
+      <div class="modal-header">
+        <h2 class="modal-title">更换人物立绘 / 肖像</h2>
+        <button type="button" class="modal-close-x" data-close="imageModal">✕</button>
+      </div>
+
+      <div class="upload-zone">
+        <button
+          type="button"
+          id="pupUploadBtn"
+          class="btn-modal-primary"
+          data-chevereto-pup-trigger
+          data-target="#urlInput"
+        >
+          🖼 上传图片至 FreeImage.host 图床
+        </button>
+        <p class="upload-hint">上传完成后，插件将自动捕获图片直链并更新档案肖像</p>
+      </div>
+
+      <div class="divider-text">或手动输入 / 粘贴图片链接</div>
+
+      <div class="modal-preview-row">
+        <div class="modal-preview-arch">
+          <img id="modalImgPreview" src="" alt="立绘预览" />
+        </div>
+        <div style="flex:1;min-width:0;">
+          <label class="modal-label" for="urlInput">图片直链 URL</label>
+          <input type="text" id="urlInput" class="modal-input" placeholder="https://example.com/portrait.jpg（留空则恢复默认剪影）" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-secondary" data-close="imageModal">取消</button>
+        <button type="button" id="confirmImageBtn" class="btn-modal-primary">确认更换</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 3：专有名词 / 术语补充笔记弹窗 -->
+  <div class="modal-backdrop" id="nounsModal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h2 class="modal-title">专有名词 / 术语与全局密注</h2>
+        <button type="button" class="modal-close-x" data-close="nounsModal">✕</button>
+      </div>
+
+      <label class="modal-label" for="nounsTextarea">全局战役术语、势力关系或公共笔记</label>
+      <textarea
+        id="nounsTextarea"
+        class="modal-textarea"
+        placeholder="在此记录西冠城的街区名、势力黑话、重要时间线或调查线索……"
+      ></textarea>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-secondary" data-close="nounsModal">关闭</button>
+        <button type="button" id="updateNounsBtn" class="btn-modal-primary">更新笔记</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 4：美化版密档权限验证弹窗 -->
+  <div class="modal-backdrop" id="passwordModal">
+    <div class="modal-box modal-sm pwd-modal-box" id="pwdModalBox">
+      <svg class="corner-ornament corner-tl" viewBox="0 0 28 28" fill="none"><path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/><path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/><circle cx="6" cy="6" r="2.2" fill="#b58d46"/></svg>
+      <svg class="corner-ornament corner-tr" viewBox="0 0 28 28" fill="none"><path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/><path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/><circle cx="6" cy="6" r="2.2" fill="#b58d46"/></svg>
+      <svg class="corner-ornament corner-bl" viewBox="0 0 28 28" fill="none"><path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/><path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/><circle cx="6" cy="6" r="2.2" fill="#b58d46"/></svg>
+      <svg class="corner-ornament corner-br" viewBox="0 0 28 28" fill="none"><path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/><path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/><circle cx="6" cy="6" r="2.2" fill="#b58d46"/></svg>
+
+      <button type="button" class="modal-close-x pwd-close-abs" id="pwdCancelX" aria-label="关闭">✕</button>
+
+      <div class="pwd-crest-wrap">
+        <svg width="46" height="46" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="21" fill="#5e1116" stroke="#b58d46" stroke-width="1.8"/>
+          <circle cx="24" cy="24" r="16.5" stroke="#d8b572" stroke-width="0.9" stroke-dasharray="3 2" opacity="0.75"/>
+          <path d="M24 14C21.2 14 19 16.2 19 19C19 20.9 20.1 22.6 21.7 23.4L20.3 33H27.7L26.3 23.4C27.9 22.6 29 20.9 29 19C29 16.2 26.8 14 24 14Z" fill="#f3e8d2" stroke="#d8b572" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <h2 class="modal-title pwd-title-center" id="pwdModalTitle">密档权限验证</h2>
+      <div class="pwd-divider"><span>✦</span></div>
+
+      <label class="modal-label pwd-prompt-center" for="pwdInput" id="pwdModalPrompt">请输入访问密码以继续操作：</label>
+      <input type="password" id="pwdInput" class="modal-input pwd-input-centered" placeholder="输入密令……" autocomplete="off" />
+      <div class="pwd-error pwd-error-center" id="pwdError"></div>
+
+      <div class="modal-footer pwd-footer-center">
+        <button type="button" class="btn-modal-secondary" id="pwdCancelBtn">取消</button>
+        <button type="button" id="pwdConfirmBtn" class="btn-modal-primary">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ================= 配置区 ================= */
+    const BIN_ID = '6a0575ad250b1311c34a91e5';
+    const API_KEY = '$2a$10$y8zzhvJgc6dFJB7rYbhP1eSAH4yZyI6hjqJheCSwTXr/NvJbtVIsC';
+    const ACCESS_PASSWORD = '781674';
+    const FALLBACK_AVATAR =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">` +
+          `<defs><radialGradient id="g" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#3c2227"/><stop offset="100%" stop-color="#130b0d"/></radialGradient></defs>` +
+          `<rect width="120" height="150" fill="url(#g)"/>` +
+          `<circle cx="60" cy="54" r="22" fill="#5e1116" stroke="#b58d46" stroke-width="2.5"/>` +
+          `<path d="M24 136 C28 102 42 90 60 90 C78 90 92 102 96 136 Z" fill="#2c171b" stroke="#b58d46" stroke-width="2.5"/>` +
+          `<path d="M48 52 L56 54 M72 52 L64 54" stroke="#d8b572" stroke-width="2" stroke-linecap="round"/>` +
+        `</svg>`
+      );
+
+    /* ================= 全局状态 ================= */
+    const BASE_TITLE = document.title;
+    let npcs = [];
+    let nouns = '';
+    let isEditMode = false;
+    let isReorderMode = false;
+    let isCloudBusy = false;
+    let hasUnsavedChanges = false;
+    let statusTimer = null;
+    let lastJumpedIndex = -1;
+
+    // 拖拽排序状态与帧节流
+    let dragSrcIndex = -1;
+    let dragSrcCard = null;
+    let currentDropCard = null;
+    let pendingTargetCard = null;
+    let dragRafId = null;
+
+    // 换图状态
+    let activeImageIndex = -1;
+    let awaitingPluginUpload = false;
+    let userInteractedWithUrlInput = false;
+
+    // 密码弹窗 Promise 控制
+    let pwdResolver = null;
+
+    const OFFLINE_SAMPLES = {
+      npcs: [
+        {
+          img: '',
+          name: '维奥莱塔·莫雷蒂（示例）',
+          role: '贵族遗孀 / 剧场赞助人',
+          note: '常穿暗红天鹅绒长裙，在暮光剧场包厢活动。对初来乍到的调查者态度颇为友善，似乎暗中留意着十年前的旧案剪报。'
+        },
+        {
+          img: '',
+          name: '“断角”索恩（示例）',
+          role: '街头线人 / 钟表匠',
+          note: '左角断裂的苍白提夫林，只在黄昏前于雾桥下露面。精通城内巡防换班规律，讨厌佩戴黑红重甲的执法人员。'
+        }
+      ],
+      nouns: '【西冠城基础术语示例】\n• 暮光之城：切利亚斯帝国旧都西冠城的别称。\n• 地狱骑士：身着黑红精工重甲的严格执法组织。\n• 宵禁钟声：每当夜幕降临，平民应迅速返回室内锁好门窗。'
+    };
+
+    /* ================= DOM 引用 ================= */
+    const stickyToolbar = document.getElementById('stickyToolbar');
+    const statusBar = document.getElementById('statusBar');
+    const statusText = document.getElementById('statusText');
+    const toggleModeBtn = document.getElementById('toggleModeBtn');
+    const syncCloudBtn = document.getElementById('syncCloudBtn');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const toggleReorderBtn = document.getElementById('toggleReorderBtn');
+    const nounsBtn = document.getElementById('nounsBtn');
+    const addRowBtn = document.getElementById('addRowBtn');
+    const importJsonBtn = document.getElementById('importJsonBtn');
+    const saveCloudBtn = document.getElementById('saveCloudBtn');
+    const importFileInput = document.getElementById('importFileInput');
+
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const countBadge = document.getElementById('countBadge');
+    const sidebarList = document.getElementById('sidebarList');
+    const sidebarTotal = document.getElementById('sidebarTotal');
+    const npcGrid = document.getElementById('npcGrid');
+
+    // 模态框元素
+    const zoomModal = document.getElementById('zoomModal');
+    const zoomImg = document.getElementById('zoomImg');
+    const zoomCaption = document.getElementById('zoomCaption');
+
+    const imageModal = document.getElementById('imageModal');
+    const pupUploadBtn = document.getElementById('pupUploadBtn');
+    const urlInput = document.getElementById('urlInput');
+    const modalImgPreview = document.getElementById('modalImgPreview');
+    const confirmImageBtn = document.getElementById('confirmImageBtn');
+
+    const nounsModal = document.getElementById('nounsModal');
+    const nounsTextarea = document.getElementById('nounsTextarea');
+    const updateNounsBtn = document.getElementById('updateNounsBtn');
+
+    const passwordModal = document.getElementById('passwordModal');
+    const pwdModalBox = document.getElementById('pwdModalBox');
+    const pwdModalPrompt = document.getElementById('pwdModalPrompt');
+    const pwdInput = document.getElementById('pwdInput');
+    const pwdError = document.getElementById('pwdError');
+    const pwdConfirmBtn = document.getElementById('pwdConfirmBtn');
+    const pwdCancelBtn = document.getElementById('pwdCancelBtn');
+    const pwdCancelX = document.getElementById('pwdCancelX');
+
+    /* ================= 动态同步悬浮栏高度 ================= */
+    function updateStickyOffsets() {
+      const h = stickyToolbar ? stickyToolbar.offsetHeight : 148;
+      document.documentElement.style.setProperty('--sidebar-top', `${h + 14}px`);
+      document.documentElement.style.setProperty('--scroll-offset', `${h + 18}px`);
+    }
+
+    if (typeof ResizeObserver !== 'undefined' && stickyToolbar) {
+      new ResizeObserver(updateStickyOffsets).observe(stickyToolbar);
+    }
+    window.addEventListener('resize', updateStickyOffsets);
+
+    /* ================= 工具函数 ================= */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function cornerSvg(cls) {
+      return `
+        <svg class="corner-ornament ${cls}" viewBox="0 0 28 28" fill="none">
+          <path d="M2 26V6C2 3.8 3.8 2 6 2H26" stroke="#7f171d" stroke-width="1.6"/>
+          <path d="M6 20V8C6 6.9 6.9 6 8 6H20" stroke="#b58d46" stroke-width="1.2"/>
+          <circle cx="6" cy="6" r="2.2" fill="#b58d46"/>
+        </svg>
+      `;
+    }
+
+    function getDefaultStatusText() {
+      if (isReorderMode) {
+        return '位置调整模式已开启 · 按住并拖拽任意 NPC 卡片即可调换顺序';
+      }
+      return isEditMode
+        ? '编辑模式已开启 · 可直接点击卡片文字修改，完成后请记得保存至云端'
+        : '卷宗就绪 · 当前处于只读查阅模式';
+    }
+
+    function showStatus(msg, type = 'normal', duration = 4000) {
+      if (statusTimer) {
+        clearTimeout(statusTimer);
+        statusTimer = null;
+      }
+      statusBar.className = 'status-bar';
+      if (type === 'success') statusBar.classList.add('status-success');
+      else if (type === 'warn') statusBar.classList.add('status-warn');
+      else if (type === 'error') statusBar.classList.add('status-error');
+
+      statusText.textContent = msg;
+
+      if (duration > 0) {
+        statusTimer = setTimeout(() => {
+          statusBar.className = 'status-bar';
+          statusText.textContent = getDefaultStatusText();
+        }, duration);
+      }
+    }
+
+    function setUnsavedState(flag) {
+      hasUnsavedChanges = flag;
+      if (flag) {
+        saveCloudBtn.classList.add('btn-save-unsaved');
+        saveCloudBtn.textContent = '⚠ 保存到云端 (未保存)';
+        document.title = `* 未保存 - ${BASE_TITLE}`;
+      } else {
+        saveCloudBtn.classList.remove('btn-save-unsaved');
+        saveCloudBtn.textContent = '🕯 保存到云端';
+        document.title = BASE_TITLE;
+      }
+    }
+
+    function isCloudConfigured() {
+      return (
+        BIN_ID &&
+        API_KEY &&
+        BIN_ID !== 'YOUR_JSONBIN_BIN_ID' &&
+        API_KEY !== 'YOUR_JSONBIN_MASTER_KEY'
+      );
+    }
+
+    function normalizeDataset(rawData) {
+      if (Array.isArray(rawData)) {
+        return {
+          npcs: rawData.map((item) => ({
+            img: item?.img || '',
+            name: item?.name || '',
+            role: item?.role || '',
+            note: item?.note || ''
+          })),
+          nouns: ''
+        };
+      }
+      if (rawData && typeof rawData === 'object') {
+        const list = Array.isArray(rawData.npcs) ? rawData.npcs : [];
+        return {
+          npcs: list.map((item) => ({
+            img: item?.img || '',
+            name: item?.name || '',
+            role: item?.role || '',
+            note: item?.note || ''
+          })),
+          nouns: typeof rawData.nouns === 'string' ? rawData.nouns : ''
+        };
+      }
+      throw new Error('JSON 数据结构无效');
+    }
+
+    function setReorderMode(active) {
+      isReorderMode = active;
+      document.body.classList.toggle('reorder-mode', active);
+      toggleReorderBtn.classList.toggle('btn-reorder-active', active);
+      toggleReorderBtn.textContent = active ? '✓ 完成位置调整' : '✥ 编辑位置';
+
+      if (active && searchInput.value.trim()) {
+        searchInput.value = '';
+        clearSearchBtn.classList.remove('visible');
+        showStatus('已自动清空检索筛选，现在可拖拽卡片调整位置', 'warn', 3500);
+      } else {
+        showStatus(getDefaultStatusText(), active ? 'warn' : 'normal', 3000);
+      }
+      renderCards();
+    }
+
+    /* ================= 左侧竖排姓名索引渲染与快速跳转 ================= */
+    function renderSidebar() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      sidebarTotal.textContent = `${npcs.length} 人`;
+
+      if (npcs.length === 0) {
+        sidebarList.innerHTML = `<div class="sidebar-empty">暂无人物记录</div>`;
+        return;
+      }
+
+      sidebarList.innerHTML = npcs
+        .map((npc, idx) => {
+          const displayName = (npc.name || '').trim() || '未命名条目';
+          const matchesSearch =
+            !keyword ||
+            `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase().includes(keyword);
+          const classes = [
+            'sidebar-item',
+            idx === lastJumpedIndex ? 'active-jump' : '',
+            !matchesSearch ? 'dimmed' : ''
+          ]
+            .filter(Boolean)
+            .join(' ');
+
+          return `
+            <button
+              type="button"
+              class="${classes}"
+              data-jump-index="${idx}"
+              title="${escapeHtml(displayName)}${npc.role ? ' · ' + escapeHtml(npc.role) : ''}"
+            >
+              <span class="sidebar-num">#${idx + 1}</span>
+              <span class="sidebar-name">${escapeHtml(displayName)}</span>
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    function jumpToNpc(idx) {
+      if (Number.isNaN(idx) || idx < 0 || idx >= npcs.length) return;
+      lastJumpedIndex = idx;
+
+      if (searchInput.value.trim()) {
+        const target = npcGrid.querySelector(`.npc-card[data-index="${idx}"]`);
+        if (!target) {
+          searchInput.value = '';
+          clearSearchBtn.classList.remove('visible');
+          renderCards();
+        }
+      }
+
+      renderSidebar();
+
+      const card = npcGrid.querySelector(`.npc-card[data-index="${idx}"]`);
+      if (!card) return;
+
+      updateStickyOffsets();
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      card.classList.remove('jump-highlight');
+      void card.offsetWidth;
+      card.classList.add('jump-highlight');
+      setTimeout(() => card.classList.remove('jump-highlight'), 1550);
+    }
+
+    sidebarList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.sidebar-item[data-jump-index]');
+      if (!btn) return;
+      jumpToNpc(Number(btn.dataset.jumpIndex));
+    });
+
+    /* 原地同步 DOM 索引与编号 */
+    function refreshCardIndicesInDom() {
+      const cards = npcGrid.querySelectorAll('.npc-card');
+      const total = cards.length;
+      cards.forEach((card, i) => {
+        card.dataset.index = String(i);
+        const reorderText = card.querySelector('.reorder-num');
+        if (reorderText) reorderText.textContent = `⋮⋮ 序号 #${i + 1} · 拖拽卡片改换位置`;
+
+        const footerIdx = card.querySelector('.card-index-hint');
+        if (footerIdx) footerIdx.textContent = `档案编号 #${i + 1}`;
+
+        const zoomFrame = card.querySelector('.portrait-frame');
+        if (zoomFrame) zoomFrame.dataset.zoomIndex = String(i);
+
+        const prevBtn = card.querySelector('button[data-action="move-prev"]');
+        if (prevBtn) {
+          prevBtn.dataset.index = String(i);
+          prevBtn.disabled = i === 0;
+        }
+        const nextBtn = card.querySelector('button[data-action="move-next"]');
+        if (nextBtn) {
+          nextBtn.dataset.index = String(i);
+          nextBtn.disabled = i === total - 1;
+        }
+        card.querySelectorAll('button[data-action="img"], button[data-action="delete"]').forEach((btn) => {
+          btn.dataset.index = String(i);
+        });
+      });
+      renderSidebar();
+    }
+
+    /* ================= 密码验证弹窗（Promise） ================= */
+    function verifyPassword(promptText = '请输入访问密码以进入编辑或保存操作：') {
+      return new Promise((resolve) => {
+        pwdResolver = resolve;
+        pwdModalPrompt.textContent = promptText;
+        pwdInput.value = '';
+        pwdError.textContent = '';
+        pwdModalBox.classList.remove('shake');
+        passwordModal.classList.add('open');
+        setTimeout(() => pwdInput.focus(), 40);
+      });
+    }
+
+    function closePasswordModal(result) {
+      passwordModal.classList.remove('open');
+      if (pwdResolver) {
+        const res = pwdResolver;
+        pwdResolver = null;
+        res(result);
+      }
+    }
+
+    function handlePasswordSubmit() {
+      if (pwdInput.value === ACCESS_PASSWORD) {
+        closePasswordModal(true);
+      } else {
+        pwdError.textContent = '✦ 密令错误，请重新核对后再试';
+        pwdModalBox.classList.remove('shake');
+        void pwdModalBox.offsetWidth;
+        pwdModalBox.classList.add('shake');
+        pwdInput.select();
+      }
+    }
+
+    pwdConfirmBtn.addEventListener('click', handlePasswordSubmit);
+    pwdCancelBtn.addEventListener('click', () => closePasswordModal(false));
+    pwdCancelX.addEventListener('click', () => closePasswordModal(false));
+    pwdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handlePasswordSubmit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closePasswordModal(false);
+      }
+    });
+
+    /* ================= 羊皮纸卡片渲染 ================= */
+    function renderCards() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      clearSearchBtn.classList.toggle('visible', keyword.length > 0);
+
+      const indexedList = npcs
+        .map((npc, idx) => ({ npc, idx }))
+        .filter(({ npc }) => {
+          if (!keyword) return true;
+          const haystack = `${npc.name || ''}\n${npc.role || ''}\n${npc.note || ''}`.toLowerCase();
+          return haystack.includes(keyword);
+        });
+
+      countBadge.textContent = keyword
+        ? `匹配 ${indexedList.length} / 共 ${npcs.length} 位人物`
+        : `共 ${npcs.length} 位人物`;
+
+      renderSidebar();
+
+      if (indexedList.length === 0) {
+        npcGrid.innerHTML = `
+          <div class="empty-state">
+            <h3>${keyword ? '未检索到符合线索的卷宗' : '暗巷卷宗尚属空白'}</h3>
+            <p>${keyword ? '请尝试更换关键词，或点击搜索框右侧 ✕ 恢复显示全部人物。' : '进入编辑模式后点击上方「＋ 新增条目」即可写下新的都市人物档案。'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      const canEditText = isEditMode && !isReorderMode;
+      const editableAttr = canEditText ? 'contenteditable="true"' : '';
+      const draggableAttr = isReorderMode ? 'draggable="true"' : '';
+
+      npcGrid.innerHTML = indexedList
+        .map(({ npc, idx }) => {
+          const imgSrc = npc.img && npc.img.trim() ? npc.img.trim() : FALLBACK_AVATAR;
+
+          return `
+            <article class="npc-card" data-index="${idx}" ${draggableAttr}>
+              ${cornerSvg('corner-tl')}
+              ${cornerSvg('corner-tr')}
+              ${cornerSvg('corner-bl')}
+              ${cornerSvg('corner-br')}
+
+              <div class="reorder-bar reorder-only">
+                <span class="reorder-num">⋮⋮ 序号 #${idx + 1} · 拖拽卡片改换位置</span>
+                <div class="reorder-step-btns">
+                  <button type="button" class="btn-step" data-action="move-prev" data-index="${idx}" ${idx === 0 ? 'disabled' : ''} title="前移一位">◀</button>
+                  <button type="button" class="btn-step" data-action="move-next" data-index="${idx}" ${idx === npcs.length - 1 ? 'disabled' : ''} title="后移一位">▶</button>
+                </div>
+              </div>
+
+              <div class="card-top">
+                <div class="portrait-wrap">
+                  <div class="portrait-frame" data-zoom-index="${idx}" title="${isReorderMode ? '按住拖拽卡片' : '点击放大查看立绘'}">
+                    <img
+                      src="${escapeHtml(imgSrc)}"
+                      alt="${escapeHtml(npc.name || '人物肖像')}"
+                      draggable="false"
+                      decoding="async"
+                      onerror="this.onerror=null; this.src=FALLBACK_AVATAR;"
+                    />
+                  </div>
+                </div>
+
+                <div class="card-identity">
+                  <h2
+                    class="npc-name"
+                    data-field="name"
+                    data-placeholder="点击填写名称……"
+                    ${editableAttr}
+                  >${escapeHtml(npc.name)}</h2>
+                  <div
+                    class="npc-role-badge"
+                    data-field="role"
+                    data-placeholder="点击填写身份 / 标签……"
+                    ${editableAttr}
+                  >${escapeHtml(npc.role)}</div>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="section-block-label">✒ 备注信息</div>
+                <div
+                  class="npc-note"
+                  data-field="note"
+                  data-placeholder="点击填写容貌举止、已知情报或相关线索……"
+                  ${editableAttr}
+                >${escapeHtml(npc.note)}</div>
+              </div>
+
+              <footer class="card-footer admin-only">
+                <span class="card-index-hint">档案编号 #${idx + 1}</span>
+                <div class="card-actions">
+                  <button type="button" class="btn-card" data-action="img" data-index="${idx}">换图</button>
+                  <button type="button" class="btn-card delete" data-action="delete" data-index="${idx}">焚毁删除</button>
+                </div>
+              </footer>
+            </article>
+          `;
+        })
+        .join('');
+    }
+
+    /* ================= 卡片内文本纯文本粘贴 & 失焦对比保存 ================= */
+    npcGrid.addEventListener('paste', (e) => {
+      const cell = e.target.closest('[contenteditable="true"]');
+      if (!cell) return;
+      e.preventDefault();
+      const plainText = (e.clipboardData || window.clipboardData).getData('text/plain');
+      if (!plainText) return;
+
+      const selection = window.getSelection();
+      if (!selection || !selection.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode(plainText);
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+
+    npcGrid.addEventListener(
+      'blur',
+      (e) => {
+        if (!isEditMode || isReorderMode) return;
+        const fieldEl = e.target.closest('[contenteditable="true"][data-field]');
+        if (!fieldEl) return;
+        const card = fieldEl.closest('.npc-card');
+        const idx = Number(card?.dataset.index);
+        const field = fieldEl.dataset.field;
+        if (Number.isNaN(idx) || !field || !npcs[idx]) return;
+
+        const newVal = fieldEl.innerText.trim();
+        const oldVal = (npcs[idx][field] || '').trim();
+        if (newVal !== oldVal) {
+          npcs[idx][field] = newVal;
+          setUnsavedState(true);
+          if (field === 'name' || field === 'role') {
+            renderSidebar();
+          }
+          const fieldLabel = field === 'name' ? '名称' : field === 'role' ? '身份/标签' : '备注信息';
+          showStatus(`已更新「${npcs[idx].name || '未命名条目'}」的${fieldLabel}（尚未上传云端）`, 'warn', 3500);
+        }
+      },
+      true
+    );
+
+    /* ================= 卡片点击交互 ================= */
+    npcGrid.addEventListener('click', (e) => {
+      const actionBtn = e.target.closest('button[data-action]');
+      if (actionBtn) {
+        if (!isEditMode) return;
+        const idx = Number(actionBtn.dataset.index);
+        const action = actionBtn.dataset.action;
+        if (Number.isNaN(idx) || !npcs[idx]) return;
+
+        if (action === 'img') {
+          openImageModal(idx);
+        } else if (action === 'delete') {
+          const targetName = npcs[idx].name || '该未命名条目';
+          if (confirm(`确定要将「${targetName}」的档案卷宗焚毁删除吗？`)) {
+            npcs.splice(idx, 1);
+            if (lastJumpedIndex === idx) lastJumpedIndex = -1;
+            else if (lastJumpedIndex > idx) lastJumpedIndex--;
+            setUnsavedState(true);
+            renderCards();
+            showStatus(`已删除条目「${targetName}」`, 'warn', 3000);
+          }
+        } else if (action === 'move-prev' && idx > 0) {
+          const card = actionBtn.closest('.npc-card');
+          const prevCard = card?.previousElementSibling;
+          [npcs[idx - 1], npcs[idx]] = [npcs[idx], npcs[idx - 1]];
+          if (card && prevCard) {
+            prevCard.before(card);
+            refreshCardIndicesInDom();
+          } else {
+            renderCards();
+          }
+          setUnsavedState(true);
+          showStatus(`已将「${npcs[idx - 1].name || '条目'}」前移至 #${idx}`, 'warn', 2500);
+        } else if (action === 'move-next' && idx < npcs.length - 1) {
+          const card = actionBtn.closest('.npc-card');
+          const nextCard = card?.nextElementSibling;
+          [npcs[idx], npcs[idx + 1]] = [npcs[idx + 1], npcs[idx]];
+          if (card && nextCard) {
+            nextCard.after(card);
+            refreshCardIndicesInDom();
+          } else {
+            renderCards();
+          }
+          setUnsavedState(true);
+          showStatus(`已将「${npcs[idx + 1].name || '条目'}」后移至 #${idx + 2}`, 'warn', 2500);
+        }
+        return;
+      }
+
+      if (isReorderMode) return;
+
+      const zoomTarget = e.target.closest('.portrait-frame');
+      if (zoomTarget) {
+        const idx = Number(zoomTarget.dataset.zoomIndex);
+        const npc = npcs[idx];
+        if (!npc) return;
+        const imgSrc = npc.img && npc.img.trim() ? npc.img.trim() : FALLBACK_AVATAR;
+        zoomImg.onerror = function () {
+          this.onerror = null;
+          this.src = FALLBACK_AVATAR;
+        };
+        zoomImg.src = imgSrc;
+        zoomCaption.textContent = npc.name ? `${npc.name}${npc.role ? ' · ' + npc.role : ''}` : '人物肖像';
+        zoomModal.classList.add('open');
+      }
+    });
+
+    /* ================= 帧合并节流极速拖拽 ================= */
+    function clearDragVisuals() {
+      if (dragRafId) {
+        cancelAnimationFrame(dragRafId);
+        dragRafId = null;
+      }
+      pendingTargetCard = null;
+      if (dragSrcCard) {
+        dragSrcCard.classList.remove('dragging');
+        dragSrcCard = null;
+      }
+      if (currentDropCard) {
+        currentDropCard.classList.remove('drag-over');
+        currentDropCard = null;
+      }
+      dragSrcIndex = -1;
+    }
+
+    npcGrid.addEventListener('dragstart', (e) => {
+      if (!isReorderMode) {
+        e.preventDefault();
+        return;
+      }
+      const card = e.target.classList?.contains('npc-card') ? e.target : e.target.closest('.npc-card');
+      if (!card) return;
+      dragSrcCard = card;
+      dragSrcIndex = Number(card.dataset.index);
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragSrcIndex));
+
+      requestAnimationFrame(() => {
+        if (dragSrcCard) dragSrcCard.classList.add('dragging');
+      });
+    });
+
+    npcGrid.addEventListener('dragover', (e) => {
+      if (!isReorderMode || dragSrcIndex < 0) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+
+      pendingTargetCard = e.target.classList?.contains('npc-card')
+        ? e.target
+        : e.target.closest('.npc-card');
+
+      if (!dragRafId) {
+        dragRafId = requestAnimationFrame(() => {
+          dragRafId = null;
+          const targetCard = pendingTargetCard;
+          if (!targetCard || targetCard === dragSrcCard) {
+            if (currentDropCard) {
+              currentDropCard.classList.remove('drag-over');
+              currentDropCard = null;
+            }
+            return;
+          }
+          if (targetCard !== currentDropCard) {
+            if (currentDropCard) currentDropCard.classList.remove('drag-over');
+            targetCard.classList.add('drag-over');
+            currentDropCard = targetCard;
+          }
+        });
+      }
+    });
+
+    npcGrid.addEventListener('drop', (e) => {
+      if (!isReorderMode || dragSrcIndex < 0) return;
+      e.preventDefault();
+      const hitCard = e.target.classList?.contains('npc-card') ? e.target : e.target.closest('.npc-card');
+      const targetCard = hitCard || currentDropCard;
+      const srcCard = dragSrcCard;
+      const fromIdx = dragSrcIndex;
+      clearDragVisuals();
+
+      if (!targetCard || !srcCard || targetCard === srcCard) return;
+      const toIdx = Number(targetCard.dataset.index);
+      if (Number.isNaN(toIdx) || toIdx === fromIdx) return;
+
+      const [movedItem] = npcs.splice(fromIdx, 1);
+      npcs.splice(toIdx, 0, movedItem);
+
+      if (fromIdx < toIdx) {
+        targetCard.after(srcCard);
+      } else {
+        targetCard.before(srcCard);
+      }
+      refreshCardIndicesInDom();
+
+      setUnsavedState(true);
+      showStatus(`已将「${movedItem.name || '该条目'}」移动至第 #${toIdx + 1} 位（尚未上传云端）`, 'warn', 3500);
+    });
+
+    npcGrid.addEventListener('dragend', clearDragVisuals);
+
+    /* ================= 搜索框事件 ================= */
+    searchInput.addEventListener('input', renderCards);
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      renderCards();
+      searchInput.focus();
+    });
+
+    /* ================= FreeImage.host 直链提取与换图逻辑 ================= */
+    function extractCleanImageUrl(text) {
+      if (!text || typeof text !== 'string') return '';
+      const trimmed = text.trim();
+
+      const htmlMatch = trimmed.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (htmlMatch && htmlMatch[1]) return htmlMatch[1].trim();
+
+      const bbMatch = trimmed.match(/\[img\]([^\[\]]+)\[\/img\]/i);
+      if (bbMatch && bbMatch[1]) return bbMatch[1].trim();
+
+      const mdMatch = trimmed.match(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/i);
+      if (mdMatch && mdMatch[1]) return mdMatch[1].trim();
+
+      const imgExtMatch = trimmed.match(/https?:\/\/[^\s"'<>()]+?\.(?:jpg|jpeg|png|gif|webp|bmp|svg|avif)(?:\?[^\s"'<>()]*)?/i);
+      if (imgExtMatch) return imgExtMatch[0].trim();
+
+      const urlMatch = trimmed.match(/https?:\/\/[^\s"'<>()]+/i);
+      return urlMatch ? urlMatch[0].trim() : '';
+    }
+
+    function updateModalImgPreview(rawVal) {
+      const clean = extractCleanImageUrl(rawVal);
+      modalImgPreview.onerror = function () {
+        this.onerror = null;
+        this.src = FALLBACK_AVATAR;
+      };
+      modalImgPreview.src = clean || FALLBACK_AVATAR;
+    }
+
+    function openImageModal(idx) {
+      activeImageIndex = idx;
+      awaitingPluginUpload = false;
+      userInteractedWithUrlInput = false;
+      const curUrl = npcs[idx]?.img || '';
+      urlInput.value = curUrl;
+      updateModalImgPreview(curUrl);
+      imageModal.classList.add('open');
+    }
+
+    function applyNewImageUrl(rawUrl, fromPlugin = false) {
+      if (activeImageIndex < 0 || !npcs[activeImageIndex]) return;
+      const cleanUrl = extractCleanImageUrl(rawUrl);
+
+      if (fromPlugin && !cleanUrl) return;
+
+      npcs[activeImageIndex].img = cleanUrl;
+      setUnsavedState(true);
+      renderCards();
+      imageModal.classList.remove('open');
+      awaitingPluginUpload = false;
+      showStatus(
+        cleanUrl
+          ? `已更新「${npcs[activeImageIndex].name || '条目'}」的立绘链接`
+          : `已清除「${npcs[activeImageIndex].name || '条目'}」的立绘链接`,
+        'warn',
+        3500
+      );
+      activeImageIndex = -1;
+    }
+
+    pupUploadBtn.addEventListener('click', () => {
+      awaitingPluginUpload = true;
+      userInteractedWithUrlInput = false;
+    });
+
+    urlInput.addEventListener('keydown', () => {
+      userInteractedWithUrlInput = true;
+      awaitingPluginUpload = false;
+    });
+    urlInput.addEventListener('paste', () => {
+      userInteractedWithUrlInput = true;
+      awaitingPluginUpload = false;
+    });
+    urlInput.addEventListener('input', () => {
+      updateModalImgPreview(urlInput.value);
+    });
+
+    urlInput.addEventListener('change', () => {
+      if (!imageModal.classList.contains('open')) return;
+      if (!userInteractedWithUrlInput || awaitingPluginUpload) {
+        const extracted = extractCleanImageUrl(urlInput.value);
+        if (extracted) {
+          urlInput.value = extracted;
+          updateModalImgPreview(extracted);
+          applyNewImageUrl(extracted, true);
+        }
+      }
+    });
+
+    window.addEventListener('message', (e) => {
+      if (!imageModal.classList.contains('open')) return;
+      const origin = e.origin || '';
+      const isFreeImageOrigin = origin.includes('freeimage.host') || origin.includes('chevereto');
+
+      let candidate = '';
+      if (typeof e.data === 'string') {
+        candidate = e.data;
+      } else if (e.data && typeof e.data === 'object') {
+        candidate =
+          e.data.url ||
+          e.data.image?.url ||
+          e.data.data?.url ||
+          e.data.link ||
+          JSON.stringify(e.data);
+      }
+
+      if (!candidate) return;
+      const extracted = extractCleanImageUrl(candidate);
+      if (extracted && (isFreeImageOrigin || awaitingPluginUpload)) {
+        urlInput.value = extracted;
+        updateModalImgPreview(extracted);
+        applyNewImageUrl(extracted, true);
+      }
+    });
+
+    confirmImageBtn.addEventListener('click', () => {
+      const raw = urlInput.value.trim();
+      if (!raw) {
+        applyNewImageUrl('', false);
+        return;
+      }
+      const clean = extractCleanImageUrl(raw);
+      if (!clean) {
+        alert('未能识别有效的图片链接（需以 http:// 或 https:// 开头），请检查后重试。');
+        return;
+      }
+      applyNewImageUrl(clean, false);
+    });
+
+    /* ================= 云端同步与保存（JSONBin.io v3） ================= */
+    function setCloudButtonsDisabled(disabled) {
+      isCloudBusy = disabled;
+      syncCloudBtn.disabled = disabled;
+      saveCloudBtn.disabled = disabled;
+    }
+
+    async function fetchFromCloud(isInitial = false) {
+      if (isCloudBusy) return;
+      if (!isCloudConfigured()) {
+        if (isInitial) {
+          npcs = OFFLINE_SAMPLES.npcs.map((item) => ({ ...item }));
+          nouns = OFFLINE_SAMPLES.nouns;
+          renderCards();
+          showStatus('尚未配置 JSONBin 密钥，当前已载入离线示例卷宗', 'warn', 7000);
+        } else {
+          showStatus('请先在源码顶部配置 BIN_ID 与 API_KEY 后再同步云端', 'error', 4500);
+        }
+        return;
+      }
+
+      if (!isInitial && hasUnsavedChanges) {
+        if (!confirm('当前存在尚未保存到云端的修改，从云端重新同步将会覆盖本地未保存内容，确定继续吗？')) {
+          return;
+        }
+      }
+
+      setCloudButtonsDisabled(true);
+      showStatus('正在从云端密档库同步最新卷宗……', 'normal', 0);
+
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(BIN_ID)}/latest`, {
+          method: 'GET',
+          headers: {
+            'X-Master-Key': API_KEY,
+            'X-Bin-Meta': 'false'
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const normalized = normalizeDataset(data);
+        npcs = normalized.npcs;
+        nouns = normalized.nouns;
+        lastJumpedIndex = -1;
+        setUnsavedState(false);
+        renderCards();
+        showStatus(`云端同步成功，共载入 ${npcs.length} 条人物档案`, 'success', 4000);
+      } catch (err) {
+        console.error('Sync failed:', err);
+        showStatus(`云端同步失败（${err.message}），请检查 BIN_ID / API_KEY 或网络环境`, 'error', 6000);
+      } finally {
+        setCloudButtonsDisabled(false);
+      }
+    }
+
+    async function saveToCloud() {
+      if (isCloudBusy) return;
+      if (!isCloudConfigured()) {
+        showStatus('未配置 JSONBin 密钥，无法上传云端。请先使用「导出本地 JSON 备份」保存数据。', 'error', 5500);
+        return;
+      }
+
+      const verified = await verifyPassword('保存至云端将覆写线上档案，请输入访问密码验证：');
+      if (!verified) {
+        showStatus('已取消云端保存操作', 'normal', 3000);
+        return;
+      }
+
+      setCloudButtonsDisabled(true);
+      showStatus('正在将卷宗封存上传至云端……', 'normal', 0);
+
+      try {
+        const payload = { npcs, nouns };
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(BIN_ID)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': API_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        setUnsavedState(false);
+        showStatus('云端保存成功！所有情报档案已同步封存', 'success', 4500);
+      } catch (err) {
+        console.error('Save failed:', err);
+        showStatus(`云端保存失败（${err.message}），请立即导出本地 JSON 备份以免丢失`, 'error', 7000);
+      } finally {
+        setCloudButtonsDisabled(false);
+      }
+    }
+
+    /* ================= 模式切换与管理操作 ================= */
+    toggleModeBtn.addEventListener('click', async () => {
+      if (!isEditMode) {
+        const ok = await verifyPassword('请输入访问密码以进入编辑模式：');
+        if (!ok) {
+          showStatus('密码验证未通过，保持只读查阅模式', 'normal', 3000);
+          return;
+        }
+        isEditMode = true;
+        document.body.classList.add('edit-mode');
+        toggleModeBtn.classList.add('btn-mode-active');
+        toggleModeBtn.textContent = '👁 退出编辑模式';
+        renderCards();
+        updateStickyOffsets();
+        showStatus('已进入编辑模式，可直接点击卡片文字修改，或点击「编辑位置」拖拽排序', 'success', 4000);
+      } else {
+        if (isReorderMode) {
+          isReorderMode = false;
+          document.body.classList.remove('reorder-mode');
+          toggleReorderBtn.classList.remove('btn-reorder-active');
+          toggleReorderBtn.textContent = '✥ 编辑位置';
+        }
+        isEditMode = false;
+        document.body.classList.remove('edit-mode');
+        toggleModeBtn.classList.remove('btn-mode-active');
+        toggleModeBtn.textContent = '✒ 进入编辑模式';
+        renderCards();
+        updateStickyOffsets();
+        showStatus(hasUnsavedChanges ? '已切回只读模式（注意：仍有改动尚未保存至云端）' : '已切回只读查阅模式', hasUnsavedChanges ? 'warn' : 'normal', 4000);
+      }
+    });
+
+    toggleReorderBtn.addEventListener('click', () => {
+      if (!isEditMode) return;
+      setReorderMode(!isReorderMode);
+    });
+
+    syncCloudBtn.addEventListener('click', () => fetchFromCloud(false));
+    saveCloudBtn.addEventListener('click', saveToCloud);
+
+    addRowBtn.addEventListener('click', () => {
+      if (isReorderMode) setReorderMode(false);
+      if (searchInput.value.trim()) {
+        searchInput.value = '';
+        clearSearchBtn.classList.remove('visible');
+      }
+      npcs.push({
+        img: '',
+        name: '新目标人物',
+        role: '身份 / 势力',
+        note: ''
+      });
+      const newIdx = npcs.length - 1;
+      lastJumpedIndex = newIdx;
+      setUnsavedState(true);
+      renderCards();
+      showStatus('已新增空白人物卷宗，可直接点击卡片文本进行填写', 'warn', 3500);
+      setTimeout(() => {
+        jumpToNpc(newIdx);
+      }, 60);
+    });
+
+    /* ================= 专有名词 / 术语弹窗 ================= */
+    nounsBtn.addEventListener('click', () => {
+      nounsTextarea.value = nouns;
+      nounsModal.classList.add('open');
+    });
+
+    updateNounsBtn.addEventListener('click', () => {
+      const nextNouns = nounsTextarea.value;
+      if (nextNouns !== nouns) {
+        nouns = nextNouns;
+        setUnsavedState(true);
+        showStatus('专有名词 / 术语记录已更新（尚未上传云端）', 'warn', 3500);
+      }
+      nounsModal.classList.remove('open');
+    });
+
+    /* ================= 本地 JSON 导出与导入 ================= */
+    exportJsonBtn.addEventListener('click', () => {
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const dataStr = JSON.stringify({ npcs, nouns }, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Intel_Backup_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showStatus(`已导出本地备份文件：Intel_Backup_${dateStr}.json`, 'success', 3500);
+    });
+
+    importJsonBtn.addEventListener('click', () => {
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          const normalized = normalizeDataset(parsed);
+          npcs = normalized.npcs;
+          nouns = normalized.nouns;
+          lastJumpedIndex = -1;
+          renderCards();
+          setUnsavedState(true);
+          showStatus(`成功导入 ${npcs.length} 条档案（已标记为未保存，请确认无误后保存至云端）`, 'warn', 5000);
+        } catch (err) {
+          alert(`导入失败：文件格式损坏或结构不合法（${err.message}）`);
+          showStatus('本地 JSON 导入失败：文件解析错误', 'error', 4500);
+        } finally {
+          importFileInput.value = '';
+        }
+      };
+      reader.onerror = () => {
+        alert('读取本地文件失败，请重试。');
+        importFileInput.value = '';
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+
+    /* ================= 通用模态框遮罩关闭 & ESC 关闭 ================= */
+    document.querySelectorAll('[data-close]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-close');
+        document.getElementById(targetId)?.classList.remove('open');
+      });
+    });
+
+    [zoomModal, imageModal, nounsModal, passwordModal].forEach((modal) => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          if (modal === passwordModal) {
+            closePasswordModal(false);
+          } else {
+            modal.classList.remove('open');
+          }
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (passwordModal.classList.contains('open')) {
+        closePasswordModal(false);
+      } else if (zoomModal.classList.contains('open')) {
+        zoomModal.classList.remove('open');
+      } else if (imageModal.classList.contains('open')) {
+        imageModal.classList.remove('open');
+      } else if (nounsModal.classList.contains('open')) {
+        nounsModal.classList.remove('open');
+      }
+    });
+
+    /* ================= 页面防丢失拦截 & 启动加载 ================= */
+    window.onbeforeunload = function (e) {
+      if (hasUnsavedChanges) {
+        const msg = '当前仍有未保存到云端的情报修改，确定要离开吗？';
+        e.preventDefault();
+        e.returnValue = msg;
+        return msg;
+      }
+    };
+
+    window.onload = function () {
+      updateStickyOffsets();
+      fetchFromCloud(true);
+    };
+  </script>
+</body>
+</html>
