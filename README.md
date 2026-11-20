@@ -1,2 +1,2 @@
 https://wclnpc.yxc.ac.cn/
-![Uploading Gemini_Generated_Image_mqqju4mqqju4mqqj.webp…]()
+![不要再打我](https://iili.io/oFMDCVj.webp)
