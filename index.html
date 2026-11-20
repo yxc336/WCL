@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>西冠城手札</title>
 
-  <!-- 仅保留轻量拉丁古典衬线体；中文直接调用系统原生字体，杜绝分片字体网络重排卡顿 -->
+  <!-- 仅保留轻量拉丁古典衬线体；中文直接调用系统原生宋体/衬线体，杜绝分片字体网络重排卡顿 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" />
@@ -828,7 +828,7 @@
       word-break: break-word;
     }
 
-    /* 卡片正文 */
+    /* 卡片正文（保持原有羊皮纸底色不变，延续宋体并优化字号、墨色与间距） */
     .card-body {
       position: relative;
       z-index: 1;
@@ -852,15 +852,16 @@
     }
 
     .npc-note {
-      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-      font-size: 1.02rem;
+      font-family: var(--font-body);
+      font-size: 1.06rem;
       font-weight: 500;
-      color: #120b09;
-      letter-spacing: 0.02em;
+      color: #0f0907;
+      letter-spacing: 0.03em;
       white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.75;
+      line-height: 1.8;
       min-height: 44px;
+      -webkit-font-smoothing: subpixel-antialiased;
     }
 
     body.edit-mode:not(.reorder-mode) [contenteditable="true"] {
@@ -2586,149 +2587,4 @@
     syncCloudBtn.addEventListener('click', () => fetchFromCloud(false));
     saveCloudBtn.addEventListener('click', saveToCloud);
 
-    addRowBtn.addEventListener('click', () => {
-      if (isReorderMode) setReorderMode(false);
-      if (searchInput.value.trim()) {
-        searchInput.value = '';
-        clearSearchBtn.classList.remove('visible');
-      }
-      npcs.push({
-        img: '',
-        name: '新目标人物',
-        role: '身份 / 势力',
-        note: ''
-      });
-      const newIdx = npcs.length - 1;
-      lastJumpedIndex = newIdx;
-      setUnsavedState(true);
-      renderCards();
-      showStatus('已新增空白人物卷宗，可直接点击卡片文本进行填写', 'warn', 3500);
-      setTimeout(() => {
-        jumpToNpc(newIdx);
-      }, 60);
-    });
-
-    /* ================= 专有名词 / 术语弹窗 ================= */
-    nounsBtn.addEventListener('click', () => {
-      nounsTextarea.value = nouns;
-      nounsModal.classList.add('open');
-    });
-
-    updateNounsBtn.addEventListener('click', () => {
-      const nextNouns = nounsTextarea.value;
-      if (nextNouns !== nouns) {
-        nouns = nextNouns;
-        setUnsavedState(true);
-        showStatus('专有名词 / 术语记录已更新（尚未上传云端）', 'warn', 3500);
-      }
-      nounsModal.classList.remove('open');
-    });
-
-    /* ================= 本地 JSON 导出与导入 ================= */
-    exportJsonBtn.addEventListener('click', () => {
-      const dateStr = new Date().toISOString().slice(0, 10);
-      const dataStr = JSON.stringify({ npcs, nouns }, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Intel_Backup_${dateStr}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showStatus(`已导出本地备份文件：Intel_Backup_${dateStr}.json`, 'success', 3500);
-    });
-
-    importJsonBtn.addEventListener('click', () => {
-      importFileInput.click();
-    });
-
-    importFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const parsed = JSON.parse(ev.target.result);
-          const normalized = normalizeDataset(parsed);
-          npcs = normalized.npcs;
-          nouns = normalized.nouns;
-          lastJumpedIndex = -1;
-          renderCards();
-          setUnsavedState(true);
-          showStatus(`成功导入 ${npcs.length} 条档案（已标记为未保存，请确认无误后保存至云端）`, 'warn', 5000);
-        } catch (err) {
-          alert(`导入失败：文件格式损坏或结构不合法（${err.message}）`);
-          showStatus('本地 JSON 导入失败：文件解析错误', 'error', 4500);
-        } finally {
-          importFileInput.value = '';
-        }
-      };
-      reader.onerror = () => {
-        alert('读取本地文件失败，请重试。');
-        importFileInput.value = '';
-      };
-      reader.readAsText(file, 'utf-8');
-    });
-
-    /* ================= 通用模态框遮罩关闭 & ESC 关闭 ================= */
-    document.querySelectorAll('[data-close]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-close');
-        document.getElementById(targetId)?.classList.remove('open');
-      });
-    });
-
-    [zoomModal, imageModal, nounsModal, passwordModal].forEach((modal) => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          if (modal === passwordModal) {
-            closePasswordModal(false);
-          } else {
-            modal.classList.remove('open');
-          }
-        }
-      });
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape') return;
-      if (passwordModal.classList.contains('open')) {
-        closePasswordModal(false);
-      } else if (zoomModal.classList.contains('open')) {
-        zoomModal.classList.remove('open');
-      } else if (imageModal.classList.contains('open')) {
-        imageModal.classList.remove('open');
-      } else if (nounsModal.classList.contains('open')) {
-        nounsModal.classList.remove('open');
-      }
-    });
-
-    /* ================= 页面防丢失拦截 & 极速启动加载 ================= */
-    window.onbeforeunload = function (e) {
-      if (hasUnsavedChanges) {
-        const msg = '当前仍有未保存到云端的情报修改，确定要离开吗？';
-        e.preventDefault();
-        e.returnValue = msg;
-        return msg;
-      }
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      updateStickyOffsets();
-      if (isCloudConfigured()) {
-        const cached = readLocalCache();
-        if (cached) {
-          npcs = cached.npcs;
-          nouns = cached.nouns;
-          lastPayloadSignature = JSON.stringify(cached);
-          renderCards();
-        }
-      }
-      fetchFromCloud(true);
-    });
-  </script>
-</body>
-</html>
+    addRowB
