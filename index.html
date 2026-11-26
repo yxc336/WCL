@@ -2625,22 +2625,23 @@
       nounsModal.classList.remove('open');
     });
 
-    /* ================= 本地 JSON 导出与导入 ================= */
+/* ================= 本地 JSON 导出与导入 ================= */
     exportJsonBtn.addEventListener('click', () => {
       const dateStr = new Date().toISOString().slice(0, 10);
+      const fileName = `西冠城手札_${dateStr}.json`;
       const dataStr = JSON.stringify({ npcs, nouns }, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Intel_Backup_${dateStr}.json`;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      showStatus(`已导出本地备份文件：Intel_Backup_${dateStr}.json`, 'success', 3500);
+      showStatus(`已导出本地备份文件：${fileName}`, 'success', 3500);
     });
-
+    
     importJsonBtn.addEventListener('click', () => {
       importFileInput.click();
     });
